@@ -24,6 +24,7 @@ export default class Defender {
     update() {
         // check for enemy to shoot
         if (this.game.enemyPositions.find(pos => pos === this.y)) this.shooting = true;
+        else this.shooting = false;
 
         if (this.shooting) {
             this.timer++;
