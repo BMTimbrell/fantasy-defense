@@ -1,6 +1,7 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
 import Defender from './Defender.js';
+import Enemy from './Enemy.js';
 
 export default class Game {
     constructor(canvas) {
@@ -14,8 +15,12 @@ export default class Game {
             height: 0.1,
         };
         this.canvasPosition = canvas.getBoundingClientRect();
+        this.gameOver = false;
+
         this.defenders = [];
         this.numberOfResources = 200;
+        this.enemies = [];
+        this.enemiesInterval = 600;
 
         // update mouse position
         this.canvas.addEventListener('mousemove', e => {
@@ -59,13 +64,31 @@ export default class Game {
     }
 
     render(context) {
+        if (this.gameOver) {
+            context.fillStyle = 'black';
+            context.font = '60px Arial';
+            context.fillText('GAME OVER', 135, 330);
+        }
+
         this.gameGrid.forEach(cell => cell.render(context));
         this.controlsBar.render(context);
         this.defenders.forEach(defender => defender.render(context));
+        this.enemies.forEach(enemy => enemy.render(context));
     }
 
-    update() {
+    update(frame) {
+        if (this.gameOver) return;
+
         this.createGrid();
+        this.enemies.forEach(enemy => {
+            enemy.update();
+            if (enemy.x < 0) this.gameOver = true;
+        });
+        if (frame % this.enemiesInterval === 0) {
+            let verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
+            this.enemies.push(new Enemy(verticalPosition, this.canvas, this));
+        }
+
     }
 
     // collision detection
