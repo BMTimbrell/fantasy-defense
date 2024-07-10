@@ -26,9 +26,11 @@ export default class Projectile {
     }
 
     render(context) {
+        context.save();
         context.fillStyle = 'black';
         context.beginPath();
         context.arc(this.x, this.y, this.width, 0, Math.PI * 2);
         context.fill();
+        context.restore();
     }
 }

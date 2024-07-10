@@ -29,10 +29,12 @@ export default class Enemy {
     }
 
     render(context) {
+        context.save();
         context.fillStyle = 'red';
         context.fillRect(this.x, this.y, this.width, this.height);
         context.fillStyle = 'black';
         context.font = '20px Arial';
         context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        context.restore();
     }
 }

@@ -14,11 +14,13 @@ export default class Defender {
     }
 
     render(context) {
+        context.save();
         context.fillStyle = 'blue';
         context.fillRect(this.x, this.y, this.width, this.height);
         context.fillStyle = 'gold';
         context.font = '20px Arial';
         context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        context.restore();
     }
 
     update() {
