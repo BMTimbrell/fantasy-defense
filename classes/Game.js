@@ -1,18 +1,21 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
+import Defender from './Defender.js';
 
 export default class Game {
     constructor(canvas) {
         this.canvas = canvas;
         this.gameGrid = [];
-        this.controlsBar = new ControlsBar(canvas);
+        this.controlsBar = new ControlsBar(canvas, this);
         this.mouse = {
             x: 10,
             y: 10,
             width: 0.1,
-            height: 0.1
+            height: 0.1,
         };
         this.canvasPosition = canvas.getBoundingClientRect();
+        this.defenders = [];
+        this.numberOfResources = 200;
 
         // update mouse position
         this.canvas.addEventListener('mousemove', e => {
@@ -30,6 +33,21 @@ export default class Game {
         window.addEventListener('resize', () => {
             this.canvasPosition = this.canvas.getBoundingClientRect();
         });
+
+        this.canvas.addEventListener('click', () => {
+            const gridPositionX = this.mouse.x - (this.mouse.x % Cell.cellSize);
+            const gridPositionY = this.mouse.y - (this.mouse.y % Cell.cellSize);
+            if (gridPositionY < Cell.cellSize) return;
+            for (let i = 0; i < this.defenders.length; i++) {
+                if (this.defenders[i].x === gridPositionX && this.defenders[i].y === gridPositionY) return;
+            }
+
+            let defenderCost = 100;
+            if (this.numberOfResources >= defenderCost) {
+                this.defenders.push(new Defender(gridPositionX, gridPositionY));
+                this.numberOfResources -= defenderCost;
+            }
+        });
     }
 
     createGrid() {
@@ -43,6 +61,7 @@ export default class Game {
     render(context) {
         this.gameGrid.forEach(cell => cell.render(context));
         this.controlsBar.render(context);
+        this.defenders.forEach(defender => defender.render(context));
     }
 
     update() {
