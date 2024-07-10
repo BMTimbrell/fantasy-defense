@@ -18,9 +18,13 @@ export default class Game {
         this.gameOver = false;
 
         this.defenders = [];
-        this.numberOfResources = 200;
+        this.resources = 200;
+        this.gold = 0;
+        this.projectiles = [];
+
         this.enemies = [];
         this.enemiesInterval = 600;
+        this.enemyPositions = [];
 
         // update mouse position
         this.canvas.addEventListener('mousemove', e => {
@@ -48,9 +52,9 @@ export default class Game {
             }
 
             let defenderCost = 100;
-            if (this.numberOfResources >= defenderCost) {
-                this.defenders.push(new Defender(gridPositionX, gridPositionY));
-                this.numberOfResources -= defenderCost;
+            if (this.resources >= defenderCost) {
+                this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
+                this.resources -= defenderCost;
             }
         });
     }
@@ -74,20 +78,36 @@ export default class Game {
         this.controlsBar.render(context);
         this.defenders.forEach(defender => defender.render(context));
         this.enemies.forEach(enemy => enemy.render(context));
+        this.projectiles.forEach(projectile => projectile.render(context));
     }
 
     update(frame) {
         if (this.gameOver) return;
 
         this.createGrid();
+
+        // update enemies
         this.enemies.forEach(enemy => {
             enemy.update();
             if (enemy.x < 0) this.gameOver = true;
         });
         if (frame % this.enemiesInterval === 0) {
+            // vertical position on grid
             let verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
             this.enemies.push(new Enemy(verticalPosition, this.canvas, this));
+            this.enemyPositions.push(verticalPosition);
         }
+
+        // update defenders
+        this.defenders.forEach(defender => defender.update());
+
+        // update projectiles
+        this.projectiles.forEach(projectile => {
+            projectile.update(this);
+            if (projectile.x > this.canvas.width - Cell.cellSize) {
+                this.projectiles = this.projectiles.filter(el => el !== projectile);
+            }
+        });
 
     }
 
