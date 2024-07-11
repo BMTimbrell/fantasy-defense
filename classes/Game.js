@@ -30,7 +30,7 @@ export default class Game {
         this.resourceTimer = 5000;
 
         this.enemies = [];
-        this.enemiesInterval = 5000;
+        this.enemiesInterval = 1000;
         this.enemyTimer = this.enemiesInterval;
         this.maxEnemies = 10;
         this.enemyPositions = [];
@@ -64,7 +64,7 @@ export default class Game {
             if (this.numberOfResources >= defenderCost) {
                 this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
                 this.numberOfResources -= defenderCost;
-            } else {
+            } else if (!this.gameOver) {
                 this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
             }
         });
@@ -132,7 +132,7 @@ export default class Game {
                 this.resources = this.resources.filter(el => el !== resource);
             }
         });
-        
+
         // luck gradually increase
         if (this.luck <= 5) this.luck += 0.0001 * delta;
 
