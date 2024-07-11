@@ -132,7 +132,7 @@ export default class Game {
                 this.resources = this.resources.filter(el => el !== resource);
             }
         });
-        console.log(this.luck);
+        
         // luck gradually increase
         if (this.luck <= 5) this.luck += 0.0001 * delta;
 
