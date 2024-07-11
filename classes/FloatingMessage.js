@@ -9,12 +9,12 @@ export default class FloatingMessage {
         this.opacity = 1;
     }
 
-    update(game) {
-        this.y -= 0.3;
-        this.lifespan += 1;
+    update(game, delta) {
+        this.y -= 0.03 * delta;
+        this.lifespan += delta;
         
-        if (this.lifespan >= 50) game.floatingMessages = game.floatingMessages.filter(message => message !== this);
-        if (this.opacity > 0.03) this.opacity -= 0.03;
+        if (this.lifespan >= 500) game.floatingMessages = game.floatingMessages.filter(message => message !== this);
+        if (this.opacity > 0.03) this.opacity -= 0.003 * delta;
     }
 
     render(context) {

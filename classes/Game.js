@@ -18,7 +18,6 @@ export default class Game {
         };
         this.canvasPosition = canvas.getBoundingClientRect();
         this.gameOver = false;
-
         this.defenders = [];
         this.numberOfResources = 300;
         this.gold = 0;
@@ -28,8 +27,11 @@ export default class Game {
 
         this.floatingMessages = [];
 
+        this.resourceTimer = 5000;
+
         this.enemies = [];
-        this.enemiesInterval = 600;
+        this.enemiesInterval = 5000;
+        this.enemyTimer = this.enemiesInterval;
         this.maxEnemies = 10;
         this.enemyPositions = [];
 
@@ -92,18 +94,23 @@ export default class Game {
         this.floatingMessages.forEach(message => message.render(context));
     }
 
-    update(frame) {
+    update(delta) {
         if (this.gameOver) return;
 
         this.createGrid();
 
+        this.enemyTimer += delta;
+        this.resourceTimer += delta;
+
         // update enemies
         this.enemies.forEach(enemy => {
-            enemy.update();
+            enemy.update(delta);
             if (enemy.x < 0) this.gameOver = true;
         });
+
         // enemy spawn interval
-        if (frame % this.enemiesInterval === 0) {
+        if (this.enemyTimer >= this.enemiesInterval) {
+            this.enemyTimer = 0;
             // vertical position on grid
             let verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
             this.enemies.push(new Enemy(verticalPosition, this.canvas, this));
@@ -111,8 +118,9 @@ export default class Game {
         }
 
         // spawn resources
-        if (frame % 500 === 0) {
+        if (this.resourceTimer >= 7000) {
             this.resources.push(new Resource(this));
+            this.resourceTimer = 0;
         }
 
         // collision with resources
@@ -124,13 +132,12 @@ export default class Game {
                 this.resources = this.resources.filter(el => el !== resource);
             }
         });
-
-        // luck gradually increase
-        if (this.luck <= 5) this.luck += 0.001;
         console.log(this.luck);
+        // luck gradually increase
+        if (this.luck <= 5) this.luck += 0.0001 * delta;
 
         // update defenders
-        this.defenders.forEach(defender => defender.update());
+        this.defenders.forEach(defender => defender.update(delta));
 
         // update projectiles
         this.projectiles.forEach(projectile => {
@@ -141,7 +148,7 @@ export default class Game {
         });
 
         // floating messages
-        this.floatingMessages.forEach(message => message.update(this));
+        this.floatingMessages.forEach(message => message.update(this, delta));
 
     }
 
@@ -154,4 +161,6 @@ export default class Game {
             a.y + a.height > b.y
         );
     }
+
+
 }

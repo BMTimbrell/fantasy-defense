@@ -7,34 +7,107 @@ export default class Defender {
         this.y = y;
         this.width = Cell.cellSize;
         this.height = Cell.cellSize;
-        this.shooting = false;
+        this.attacking = false;
         this.health = 100;
-        this.timer = 0;
         this.game = game;
+        this.frameX = 0;
+        this.frameY = 0;
+        this.minFrame = 0;
+        this.maxFrame = 5;
+        this.animationTimer = 0;
+        this.animationInterval = 100;
+        this.idleFrame = 0;
+        this.attackingFrame = 0;
+        this.attackInterval = 3000;
+        this.attackTimer = this.attackInterval;
+        this.spriteSize = 200;
+        this.image = new Image();
+        this.image.src = '../images/Archer.png';
     }
 
     render(context) {
-        context.save();
-        context.fillStyle = 'blue';
-        context.fillRect(this.x, this.y, this.width, this.height);
+        // context.fillStyle = 'blue';
+        // context.fillRect(this.x, this.y, this.width, this.height);
         context.fillStyle = 'gold';
         context.font = '20px Arial';
         context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
-        context.restore();
+
+        context.drawImage(
+            this.image, 
+            this.frameX * this.spriteSize, 
+            this.frameY * this.spriteSize, 
+            this.spriteSize, 
+            this.spriteSize, 
+            this.x - 50, 
+            this.y - 50, 
+            this.width * 2, 
+            this.height * 2
+        );
+
     }
 
-    update() {
-        // check for enemy to shoot
-        if (this.game.enemyPositions.find(pos => pos === this.y)) this.shooting = true;
-        else this.shooting = false;
+    update(delta) {
+        // check for enemy to attack
+        if (this.game.enemyPositions.find(pos => pos === this.y)) this.attacking = true;
+        else this.attacking = false;
 
-        if (this.shooting) {
-            this.timer++;
-            if (this.timer % 100 === 0) {
-                this.game.projectiles.push(new Projectile(this.x, this.y));
+        this.animationTimer += delta;
+
+        // attacking
+        if (this.attacking) {
+            // attacking interval
+            if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
+            if (this.attackTimer >= this.attackInterval) {
+                // change to attacking animation
+                this.animate('attacking');
+            } else {
+                this.animate('idle');
+            }
+
+            if (this.attackingFrame === this.maxFrame) {
+                this.game.projectiles.push(new Projectile(this.x + 20, this.y + 32));
+                this.attackingFrame = this.minFrame;
+                this.attackTimer = 0;
             }
         } else {
-            this.timer = 0;
+            // change back to idle
+            this.attackTimer = this.attackInterval;
+            this.animate('idle');
         }
+    }
+
+    animate(animation) {
+
+        if (this.animationTimer >= this.animationInterval) {
+            this.animationTimer = 0;
+            switch (animation) {
+                case 'idle':
+                    this.frameY = 0;
+                    this.maxFrame = 5;
+
+                    if (this.idleFrame < this.maxFrame) {
+                        this.idleFrame++;
+                    }
+                    else this.idleFrame = this.minFrame;
+            
+                    this.frameX = this.idleFrame;
+                    break;
+                case 'attacking':
+                    this.frameY = 2;
+                    this.maxFrame = 7;
+
+                    if (this.attackingFrame < this.maxFrame) {
+                        this.attackingFrame++;
+                    }
+                    else this.attackingFrame = this.minFrame;
+            
+                    this.frameX = this.attackingFrame;
+                    break;
+                default:
+                    break;
+            }
+            
+        }
+
     }
 }

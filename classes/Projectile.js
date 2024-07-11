@@ -2,10 +2,13 @@ export default class Projectile {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = 10;
-        this.height = 10;
+        this.width = 32;
+        this.height = 32;
         this.power = 20;
         this.speed = 5;
+        this.spriteSize = 32;
+        this.image = new Image();
+        this.image.src = '../images/Arrow.png';
     }
 
     update(game) {
@@ -26,11 +29,22 @@ export default class Projectile {
     }
 
     render(context) {
-        context.save();
-        context.fillStyle = 'black';
-        context.beginPath();
-        context.arc(this.x, this.y, this.width, 0, Math.PI * 2);
-        context.fill();
-        context.restore();
+        // context.save();
+        // context.fillStyle = 'black';
+        // context.beginPath();
+        // context.arc(this.x, this.y, this.width, 0, Math.PI * 2);
+        // context.fill();
+        // context.restore();
+        context.drawImage(
+            this.image, 
+            0, 
+            0, 
+            this.spriteSize, 
+            this.spriteSize, 
+            this.x,
+            this.y, 
+            this.width, 
+            this.height
+        );
     }
 }
