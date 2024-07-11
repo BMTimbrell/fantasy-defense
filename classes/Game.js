@@ -60,6 +60,10 @@ export default class Game {
                 if (this.defenders[i].x === gridPositionX && this.defenders[i].y === gridPositionY) return;
             }
 
+            for (let i = 0; i < this.enemies.length; i++) {
+                if (this.checkCollision(this.enemies[i], this.mouse)) return;
+            }
+
             let defenderCost = 100;
             if (this.numberOfResources >= defenderCost) {
                 this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
