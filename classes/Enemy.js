@@ -32,6 +32,8 @@ export default class Enemy {
             else this.frameX = this.minFrame;
         }
 
+        this.colliding = 0;
+
         this.game.defenders.forEach((defender) => {
             if (this.game.checkCollision(defender, this)) {
                 this.colliding++;
@@ -49,8 +51,8 @@ export default class Enemy {
     }
 
     render(context) {
-        context.fillStyle = 'red';
-        context.fillRect(this.x, this.y, this.width, this.height);
+        // context.fillStyle = 'red';
+        // context.fillRect(this.x, this.y, this.width, this.height);
         context.fillStyle = 'black';
         context.font = '20px Arial';
         context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
