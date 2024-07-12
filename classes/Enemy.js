@@ -24,8 +24,9 @@ export default class Enemy {
         this.maxFrame = 5;
         this.animationTimer = 0;
         this.animationInterval = 200;
-        this.attackTimer = 0;
         this.attackInterval = 100;
+        this.damageTrigger = false;
+        this.attackTimer = this.attackInterval;
         this.image = new Image();
         this.image.src = '../images/Slime.png';
         this.colliding = 0;
@@ -41,13 +42,25 @@ export default class Enemy {
         this.x -= this.movement * delta;
         this.cellX = this.x;
 
+        // stops bug where multiple enemies collide and one kills defender then other enemies don't resume movement
         this.colliding = 0;
 
         this.game.defenders.forEach((defender) => {
-            if (this.game.checkCollision(defender, this)) {
-                this.animate('attacking');
+            if (this.game.checkCollision(defender, this) && this.x > defender.x) {
+                // attack interval
+                if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
+                if (this.attackTimer >= this.attackInterval) {
+                    // change to attacking animation
+                    this.animate('attacking');
+                    if (this.damageTrigger) {
+                        defender.health -= 20;
+                        this.damageTrigger = false;
+                    }
+                    
+                } else {
+                    this.animate('idle');
+                }
                 this.colliding++;
-                defender.health -= 0.2;
                 this.movement = 0;
                 if (defender.health <= 0) {
                     this.game.defenders = this.game.defenders.filter(el => el !== defender);
@@ -60,7 +73,7 @@ export default class Enemy {
         if (!this.colliding) {
             this.movement = this.speed;
             this.animate('walking');
-        } 
+        }
     }
 
     render(context) {
@@ -88,6 +101,9 @@ export default class Enemy {
             this.animationTimer = 0;
             switch (animation) {
                 case 'walking':
+                    // reset attacking animation
+                    this.attackingFrame = 0;
+
                     this.frameY = 1;
 
                     if (this.walkingFrame < this.maxFrame) {
@@ -98,6 +114,9 @@ export default class Enemy {
                     this.frameX = this.walkingFrame;
                     break;
                 case 'attacking':
+                    // reset walking animation
+                    this.walkingFrame = 0;
+
                     this.frameY = 2;
 
                     if (this.attackingFrame < this.maxFrame) {
@@ -106,6 +125,9 @@ export default class Enemy {
                     else this.attackingFrame = this.minFrame;
             
                     this.frameX = this.attackingFrame;
+
+                    // damage defender on this frame
+                    if (this.attackingFrame === 2) this.damageTrigger = true;
                     break;
                 default:
                     break;

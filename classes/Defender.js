@@ -75,6 +75,8 @@ export default class Defender {
         } else {
             // change back to idle
             this.attackTimer = this.attackInterval;
+            //reset attacking animation
+            this.attackingFrame = 0;
             this.animate('idle');
         }
     }
@@ -96,6 +98,9 @@ export default class Defender {
                     this.frameX = this.idleFrame;
                     break;
                 case 'attacking':
+                    // reset idle animation
+                    this.idleFrame = 0;
+
                     this.frameY = 2;
                     this.maxFrame = 7;
 
