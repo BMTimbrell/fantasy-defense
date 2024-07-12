@@ -6,7 +6,7 @@ export default class Resource {
         this.y = Math.floor((Math.random() * 5) + 1) * Cell.cellSize + 25;
         this.width = Cell.cellSize * 0.6;
         this.height = Cell.cellSize * 0.6;
-        this.amounts = [20, 50, 80, 110, 150, 190, 230, 270, 310, 350, 400, 450, 500];
+        this.amounts = [10, 20, 30, 40, 50, 60];
         this.amountsIndex = Math.floor(Math.random() * this.amounts.length + game.luck);
         this.amount = this.amountsIndex >= this.amounts.length ? this.amounts[this.amounts.length - 1]
             :  this.amountsIndex <= 0 ? this.amounts[0]

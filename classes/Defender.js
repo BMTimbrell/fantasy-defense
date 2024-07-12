@@ -2,11 +2,14 @@ import Cell from './Cell.js';
 import Projectile from './Projectile.js';
 
 export default class Defender {
-    constructor(x, y, game) {
-        this.x = x;
-        this.y = y;
-        this.width = Cell.cellSize;
-        this.height = Cell.cellSize;
+    constructor(cellX, cellY, game) {
+        this.width = 22;
+        this.height = 40;
+        this.cellX = cellX;
+        this.cellY = cellY;
+        // center hitbox inside cell
+        this.x = this.cellX + 50;
+        this.y = this.cellY + (Cell.cellSize - this.height) / 2;
         this.attacking = false;
         this.health = 100;
         this.game = game;
@@ -26,8 +29,8 @@ export default class Defender {
     }
 
     render(context) {
-        // context.fillStyle = 'blue';
-        // context.fillRect(this.x, this.y, this.width, this.height);
+        context.fillStyle = 'blue';
+        context.fillRect(this.x, this.y, this.width, this.height);
         context.fillStyle = 'gold';
         context.font = '20px Arial';
         context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
@@ -38,17 +41,17 @@ export default class Defender {
             this.frameY * this.spriteSize, 
             this.spriteSize, 
             this.spriteSize, 
-            this.x - 50, 
-            this.y - 50, 
-            this.width * 2, 
-            this.height * 2
+            this.cellX + (Cell.cellSize - this.spriteSize) / 2, 
+            this.cellY + (Cell.cellSize - this.spriteSize) / 2, 
+            this.spriteSize, 
+            this.spriteSize
         );
 
     }
 
     update(delta) {
         // check for enemy to attack
-        if (this.game.enemyPositions.find(pos => pos === this.y)) this.attacking = true;
+        if (this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x)) this.attacking = true;
         else this.attacking = false;
 
         this.animationTimer += delta;
@@ -65,7 +68,7 @@ export default class Defender {
             }
 
             if (this.attackingFrame === this.maxFrame) {
-                this.game.projectiles.push(new Projectile(this.x + 20, this.y + 32));
+                this.game.projectiles.push(new Projectile(this.cellX + 20, this.cellY + 32));
                 this.attackingFrame = this.minFrame;
                 this.attackTimer = 0;
             }

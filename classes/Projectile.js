@@ -21,7 +21,7 @@ export default class Projectile {
                 game.projectiles = game.projectiles.filter(projectile => projectile !== this);     
                 if (enemy.health <= 0) {
                     game.gold += enemy.maxHealth / 2;
-                    game.enemyPositions.splice(game.enemyPositions.indexOf(enemy.y), 1);
+                    game.enemyPositions = game.enemyPositions.filter(el => el.id !== enemy.id);
                     game.enemies = game.enemies.filter(el => el !== enemy);
                 }   
             }

@@ -21,7 +21,7 @@ export default class Game {
         this.defenders = [];
         this.numberOfResources = 300;
         this.gold = 0;
-        this.luck = -7;
+        this.luck = 0;
         this.resources = [];
         this.projectiles = [];
 
@@ -30,7 +30,7 @@ export default class Game {
         this.resourceTimer = 5000;
 
         this.enemies = [];
-        this.enemiesInterval = 1000;
+        this.enemiesInterval = 8000;
         this.enemyTimer = this.enemiesInterval;
         this.maxEnemies = 10;
         this.enemyPositions = [];
@@ -57,7 +57,7 @@ export default class Game {
             const gridPositionY = this.mouse.y - (this.mouse.y % Cell.cellSize);
             if (gridPositionY < Cell.cellSize) return;
             for (let i = 0; i < this.defenders.length; i++) {
-                if (this.defenders[i].x === gridPositionX && this.defenders[i].y === gridPositionY) return;
+                if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;
             }
 
             for (let i = 0; i < this.enemies.length; i++) {
@@ -116,9 +116,14 @@ export default class Game {
         if (this.enemyTimer >= this.enemiesInterval) {
             this.enemyTimer = 0;
             // vertical position on grid
-            let verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
-            this.enemies.push(new Enemy(verticalPosition, this.canvas, this));
-            this.enemyPositions.push(verticalPosition);
+            const verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
+            const enemyID = Date.now().toString(36) + Math.random().toString(36).substring(2);
+            this.enemies.push(new Enemy(verticalPosition, this.canvas.width, this, enemyID));
+            this.enemyPositions.push({
+                id: enemyID,
+                x: this.canvas.width,
+                y: verticalPosition
+            });
         }
 
         // spawn resources
@@ -138,8 +143,8 @@ export default class Game {
         });
 
         // luck gradually increase
-        if (this.luck <= 5) this.luck += 0.0001 * delta;
-
+        // if (this.luck <= 0) this.luck += 0.0001 * delta;
+        //console.log(this.luck);
         // update defenders
         this.defenders.forEach(defender => defender.update(delta));
 
