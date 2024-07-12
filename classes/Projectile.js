@@ -1,3 +1,5 @@
+import FloatingMessage from './FloatingMessage.js';
+
 export default class Projectile {
     constructor(x, y) {
         this.x = x;
@@ -20,6 +22,10 @@ export default class Projectile {
                 enemy.health -= this.power;
                 game.projectiles = game.projectiles.filter(projectile => projectile !== this);     
                 if (enemy.health <= 0) {
+                    const coinImage = new Image();
+                    coinImage.src = "../images/Coin.png"
+                    game.floatingMessages.push(new FloatingMessage('', enemy.x, enemy.y, 16, 'black', coinImage));
+                    // game.floatingMessages.push(new FloatingMessage('+' + enemy.maxHealth / 2, 105, 75, 35, 'gold'));
                     game.gold += enemy.maxHealth / 2;
                     game.enemyPositions = game.enemyPositions.filter(el => el.id !== enemy.id);
                     game.enemies = game.enemies.filter(el => el !== enemy);

@@ -60,10 +60,6 @@ export default class Game {
                 if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;
             }
 
-            for (let i = 0; i < this.enemies.length; i++) {
-                if (this.checkCollision(this.enemies[i], this.mouse)) return;
-            }
-
             let defenderCost = 100;
             if (this.numberOfResources >= defenderCost) {
                 this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
@@ -137,7 +133,7 @@ export default class Game {
             if (this.mouse.x && this.mouse.y && this.checkCollision(resource, this.mouse)) {
                 this.numberOfResources += resource.amount;
                 this.floatingMessages.push(new FloatingMessage('+' + resource.amount, resource.x, resource.y, 20, 'black'));
-                this.floatingMessages.push(new FloatingMessage('+' + resource.amount, 220, 50, 30, 'gold'));
+                //this.floatingMessages.push(new FloatingMessage('+' + resource.amount, 105, 50, 35, 'gold'));
                 this.resources = this.resources.filter(el => el !== resource);
             }
         });

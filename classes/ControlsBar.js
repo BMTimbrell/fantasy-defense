@@ -5,6 +5,10 @@ export default class ControlsBar {
         this.width = canvas.width;
         this.height = Cell.cellSize;
         this.game = game;
+        this.coinImage = new Image();
+        this.resourceImage = new Image();
+        this.coinImage.src = '../images/Coin.png';
+        this.resourceImage.src = '../images/Resource.png';
     }
 
     render(context) {
@@ -12,15 +16,37 @@ export default class ControlsBar {
         context.fillStyle = 'blue';
         context.fillRect(0, 0, this.width, this.height);
 
-        //gold
+        // resources
+        context.drawImage(
+            this.resourceImage, 
+            0, 
+            0, 
+            10, 
+            20, 
+            20, 
+            20, 
+            10, 
+            20
+        );
         context.fillStyle = 'gold';
         context.font = '30px Arial';
-        context.fillText(`Gold: ${this.game.gold}`, 20, 40);
-        context.restore();
+        context.fillText(this.game.numberOfResources, 50, 40);
 
-        //numberOfResources
+        //gold
+        context.drawImage(
+            this.coinImage, 
+            0, 
+            0, 
+            16, 
+            16, 
+            20, 
+            60, 
+            16, 
+            16
+        );
         context.fillStyle = 'gold';
         context.font = '30px Arial';
-        context.fillText(`Resources: ${this.game.numberOfResources}`, 20, 80);
+        context.fillText(this.game.gold, 50, 80);
+        context.restore();
     }
 }

@@ -1,5 +1,5 @@
 export default class FloatingMessage {
-    constructor(value, x, y, size, color) {
+    constructor(value, x, y, size, color, image = null) {
         this.value = value;
         this.x = x;
         this.y = y;
@@ -7,6 +7,7 @@ export default class FloatingMessage {
         this.color = color;
         this.size = size;
         this.opacity = 1;
+        this.image = image;
     }
 
     update(game, delta) {
@@ -23,6 +24,19 @@ export default class FloatingMessage {
         context.fillStyle = this.color;
         context.font = this.size + 'px Arial';
         context.fillText(this.value, this.x, this.y);
+        if (this.image) {
+            context.drawImage(
+                this.image, 
+                0, 
+                0, 
+                this.size, 
+                this.size, 
+                this.x, 
+                this.y, 
+                this.size, 
+                this.size
+            );
+        }
         context.globalAlpha = 1;
         context.restore();
     }
