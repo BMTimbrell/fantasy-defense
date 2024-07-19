@@ -18,17 +18,16 @@ export default class Projectile {
 
         //collision with enemies
         game.enemies.forEach(enemy => {
-            if (game.checkCollision(enemy, this)) {
+            if (game.checkCollision(enemy, this) && !enemy.dying) {
                 enemy.health -= this.power;
                 game.projectiles = game.projectiles.filter(projectile => projectile !== this);     
                 if (enemy.health <= 0) {
                     const coinImage = new Image();
                     coinImage.src = "../images/Coin.png"
                     game.floatingMessages.push(new FloatingMessage('', enemy.x, enemy.y, 16, 'black', coinImage));
-                    // game.floatingMessages.push(new FloatingMessage('+' + enemy.maxHealth / 2, 105, 75, 35, 'gold'));
                     game.gold += enemy.maxHealth / 2;
+                    enemy.dying = true;
                     game.enemyPositions = game.enemyPositions.filter(el => el.id !== enemy.id);
-                    game.enemies = game.enemies.filter(el => el !== enemy);
                 }   
             }
         });

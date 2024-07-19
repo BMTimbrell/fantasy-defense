@@ -32,11 +32,11 @@ export default class Defender {
     }
 
     render(context) {
-        context.fillStyle = 'blue';
-        context.fillRect(this.x, this.y, this.width, this.height);
-        context.fillStyle = 'gold';
-        context.font = '20px Arial';
-        context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        // context.fillStyle = 'blue';
+        // context.fillRect(this.x, this.y, this.width, this.height);
+        // context.fillStyle = 'gold';
+        // context.font = '20px Arial';
+        // context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
 
         context.drawImage(
             this.image, 
@@ -127,10 +127,9 @@ export default class Defender {
 
                     if (this.dyingFrame < this.maxFrame) {
                         this.dyingFrame++;
-                    }
-                    else this.dead = true;
+                    } else this.dead = true;
             
-                    this.frameX = this.idleFrame;
+                    this.frameX = this.dyingFrame;
                     break;
                 default:
                     break;

@@ -15,10 +15,14 @@ export default class Enemy {
         this.movement = this.speed;
         this.health = 100;
         this.maxHealth = this.health;
+        this.dying = false;
+        this.dead = false;
         this.game = game;
-        this.walkingFrame = 0;
-        this.attackingFrame = 0;
-        this.frameX = 0;
+        // spritesheet is flipped
+        this.walkingFrame = 5;
+        this.attackingFrame = 5;
+        this.dyingFrame = 5;
+        this.frameX = 5;
         this.frameY = 1;
         this.minFrame = 0;
         this.maxFrame = 5;
@@ -33,55 +37,61 @@ export default class Enemy {
     }
 
     update(delta) {
-        this.game.enemyPositions.forEach(pos => {
+        if (this.dead) this.game.enemies = this.game.enemies.filter(el => el !== this);
+        if (!this.dying) this.game.enemyPositions.forEach(pos => {
             if (pos.id === this.id) pos.x = this.x;
             return;
         });
 
         this.animationTimer += delta;
-        this.x -= this.movement * delta;
-        this.cellX = this.x;
-
-        // stops bug where multiple enemies collide and one kills defender then other enemies don't resume movement
-        this.colliding = 0;
-
-        this.game.defenders.forEach((defender) => {
-            if (this.game.checkCollision(defender, this) && this.x > defender.x && defender.dying === false) {
-                // attack interval
-                if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
-                if (this.attackTimer >= this.attackInterval) {
-                    // change to attacking animation
-                    this.animate('attacking');
-                    if (this.damageTrigger) {
-                        defender.health -= 20;
-                        this.damageTrigger = false;
+        if (this.dying) {
+            this.animate('dying');
+        } else {
+            this.x -= this.movement * delta;
+            this.cellX = this.x;
+    
+            // stops bug where multiple enemies collide and one kills defender then other enemies don't resume movement
+            this.colliding = 0;
+    
+            this.game.defenders.forEach((defender) => {
+                if (this.game.checkCollision(defender, this) && this.x > defender.x && defender.dying === false) {
+                    // attack interval
+                    if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
+                    if (this.attackTimer >= this.attackInterval) {
+                        // change to attacking animation
+                        this.animate('attacking');
+                        if (this.damageTrigger) {
+                            defender.health -= 20;
+                            this.damageTrigger = false;
+                        }
+                        
+                    } else {
+                        this.animate('idle');
                     }
-                    
-                } else {
-                    this.animate('idle');
+                    this.colliding++;
+                    this.movement = 0;
+                    if (defender.health <= 0) {
+                        defender.dying = true;
+                        this.movement = this.speed;
+                        this.colliding = 0;
+                    }
                 }
-                this.colliding++;
-                this.movement = 0;
-                if (defender.health <= 0) {
-                    defender.dying = true;
-                    this.movement = this.speed;
-                    this.colliding = 0;
-                }
+            });
+    
+            if (!this.colliding) {
+                this.movement = this.speed;
+                this.animate('walking');
             }
-        });
-
-        if (!this.colliding) {
-            this.movement = this.speed;
-            this.animate('walking');
         }
+
     }
 
     render(context) {
-        context.fillStyle = 'red';
-        context.fillRect(this.x, this.y, this.width, this.height);
-        context.fillStyle = 'black';
-        context.font = '20px Arial';
-        context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        // context.fillStyle = 'red';
+        // context.fillRect(this.x, this.y, this.width, this.height);
+        // context.fillStyle = 'black';
+        // context.font = '20px Arial';
+        // context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
         context.drawImage(
             this.image, 
             this.frameX * this.spriteSize, 
@@ -102,32 +112,44 @@ export default class Enemy {
             switch (animation) {
                 case 'walking':
                     // reset attacking animation
-                    this.attackingFrame = 0;
+                    this.attackingFrame = 5;
 
                     this.frameY = 1;
 
-                    if (this.walkingFrame < this.maxFrame) {
-                        this.walkingFrame++;
+                    // spritesheet is flipped
+                    if (this.walkingFrame > this.minFrame) {
+                        this.walkingFrame--;
                     }
-                    else this.walkingFrame = this.minFrame;
+                    else this.walkingFrame = this.maxFrame;
             
                     this.frameX = this.walkingFrame;
                     break;
                 case 'attacking':
                     // reset walking animation
-                    this.walkingFrame = 0;
+                    this.walkingFrame = 5;
 
                     this.frameY = 2;
 
-                    if (this.attackingFrame < this.maxFrame) {
-                        this.attackingFrame++;
+                    // spritesheet is flipped
+                    if (this.attackingFrame > this.minFrame) {
+                        this.attackingFrame--;
                     }
-                    else this.attackingFrame = this.minFrame;
+                    else this.attackingFrame = this.maxFrame;
             
                     this.frameX = this.attackingFrame;
 
                     // damage defender on this frame
                     if (this.attackingFrame === 2) this.damageTrigger = true;
+                    break;
+                case 'dying':
+                    this.frameY = 4;
+                    this.minFrame = 2;
+
+                    if (this.dyingFrame > this.minFrame) {
+                        this.dyingFrame--;
+                    } else this.dead = true;
+            
+                    this.frameX = this.dyingFrame;
                     break;
                 default:
                     break;
