@@ -16,6 +16,7 @@ export default class FloatingMessage {
         
         if (this.lifespan >= 500) game.floatingMessages = game.floatingMessages.filter(message => message !== this);
         if (this.opacity > 0.03) this.opacity -= 0.003 * delta;
+        if (this.opacity < 0) this.opacity = 0;
     }
 
     render(context) {

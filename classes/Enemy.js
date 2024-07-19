@@ -46,7 +46,7 @@ export default class Enemy {
         this.colliding = 0;
 
         this.game.defenders.forEach((defender) => {
-            if (this.game.checkCollision(defender, this) && this.x > defender.x) {
+            if (this.game.checkCollision(defender, this) && this.x > defender.x && defender.dying === false) {
                 // attack interval
                 if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
                 if (this.attackTimer >= this.attackInterval) {
@@ -63,7 +63,7 @@ export default class Enemy {
                 this.colliding++;
                 this.movement = 0;
                 if (defender.health <= 0) {
-                    this.game.defenders = this.game.defenders.filter(el => el !== defender);
+                    defender.dying = true;
                     this.movement = this.speed;
                     this.colliding = 0;
                 }

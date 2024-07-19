@@ -12,6 +12,8 @@ export default class Defender {
         this.y = this.cellY + (Cell.cellSize - this.height) / 2;
         this.attacking = false;
         this.health = 100;
+        this.dying = false;
+        this.dead = false;
         this.game = game;
         this.frameX = 0;
         this.frameY = 0;
@@ -21,6 +23,7 @@ export default class Defender {
         this.animationInterval = 100;
         this.idleFrame = 0;
         this.attackingFrame = 0;
+        this.dyingFrame = 0;
         this.attackInterval = 3000;
         this.attackTimer = this.attackInterval;
         this.spriteSize = 200;
@@ -50,8 +53,12 @@ export default class Defender {
     }
 
     update(delta) {
+        if (this.dead) this.game.defenders = this.game.defenders.filter(el => el !== this);
+        if (this.dying) {
+            this.animate('dying');
+        }
         // check for enemy to attack
-        if (this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x)) this.attacking = true;
+        if (this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x) && !this.dying) this.attacking = true;
         else this.attacking = false;
 
         this.animationTimer += delta;
@@ -72,7 +79,7 @@ export default class Defender {
                 this.attackingFrame = this.minFrame;
                 this.attackTimer = 0;
             }
-        } else {
+        } else if (!this.dying) {
             // change back to idle
             this.attackTimer = this.attackInterval;
             //reset attacking animation
@@ -87,6 +94,9 @@ export default class Defender {
             this.animationTimer = 0;
             switch (animation) {
                 case 'idle':
+                    //reset attacking frame
+                    this.attackingFrame = 0;
+
                     this.frameY = 0;
                     this.maxFrame = 5;
 
@@ -102,7 +112,7 @@ export default class Defender {
                     this.idleFrame = 0;
 
                     this.frameY = 2;
-                    this.maxFrame = 7;
+                    this.maxFrame = 8;
 
                     if (this.attackingFrame < this.maxFrame) {
                         this.attackingFrame++;
@@ -110,6 +120,17 @@ export default class Defender {
                     else this.attackingFrame = this.minFrame;
             
                     this.frameX = this.attackingFrame;
+                    break;
+                case 'dying':
+                    this.frameY = 5;
+                    this.maxFrame = 3;
+
+                    if (this.dyingFrame < this.maxFrame) {
+                        this.dyingFrame++;
+                    }
+                    else this.dead = true;
+            
+                    this.frameX = this.idleFrame;
                     break;
                 default:
                     break;
