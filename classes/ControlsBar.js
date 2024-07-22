@@ -19,6 +19,9 @@ export default class ControlsBar {
             height: 70,
             defenderCost: 100
         };
+        this.knightCard = {
+            id: 2,
+        };
         this.selectedDefender = 0;
         this.defenderCosts = {
             0: 0,

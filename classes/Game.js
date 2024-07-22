@@ -67,7 +67,14 @@ export default class Game {
                 this.checkCollision(this.mouse, this.controlsBar.archerCard) && 
                 !this.gameOver
             ) {
+                // cancel selection
+                if (this.controlsBar.selectedDefender === 1) {
+                    this.controlsBar.selectedDefender = 0;
+                    return;
+                }
+                // select defender
                 if (this.numberOfResources >= this.controlsBar.archerCard.defenderCost) this.controlsBar.selectedDefender = 1;
+                // not enough to buy
                 else {
                     this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
                     return;
