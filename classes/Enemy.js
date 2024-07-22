@@ -11,7 +11,7 @@ export default class Enemy {
         // center hitbox inside cell
         this.x = this.cellX + (Cell.cellSize - this.width) / 2;
         this.y = this.cellY + (Cell.cellSize - this.height) / 2;
-        this.speed = 0.04;
+        this.speed = 0.01;
         this.movement = this.speed;
         this.health = 100;
         this.maxHealth = this.health;

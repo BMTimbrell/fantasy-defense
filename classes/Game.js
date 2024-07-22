@@ -15,6 +15,7 @@ export default class Game {
             y: 10,
             width: 0.1,
             height: 0.1,
+            clicked: false
         };
         this.canvasPosition = canvas.getBoundingClientRect();
         this.gameOver = false;
@@ -52,20 +53,44 @@ export default class Game {
             this.canvasPosition = this.canvas.getBoundingClientRect();
         });
 
+        this.canvas.addEventListener('mousedown', () => {
+            this.mouse.clicked = true;
+        });
+
+        this.canvas.addEventListener('mouseup', () => {
+            this.mouse.clicked = false;
+        });
+
         this.canvas.addEventListener('click', () => {
-            const gridPositionX = this.mouse.x - (this.mouse.x % Cell.cellSize);
-            const gridPositionY = this.mouse.y - (this.mouse.y % Cell.cellSize);
-            if (gridPositionY < Cell.cellSize) return;
-            for (let i = 0; i < this.defenders.length; i++) {
-                if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;
+            // choosing defender
+            if (
+                this.checkCollision(this.mouse, this.controlsBar.archerCard) && 
+                !this.gameOver
+            ) {
+                if (this.numberOfResources >= this.controlsBar.archerCard.defenderCost) this.controlsBar.selectedDefender = 1;
+                else {
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    return;
+                }
             }
 
-            let defenderCost = 100;
-            if (this.numberOfResources >= defenderCost) {
-                this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
-                this.numberOfResources -= defenderCost;
-            } else if (!this.gameOver) {
-                this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+            let defenderCost = !this.controlsBar.defenderCosts[this.controlsBar.selectedDefender] ? 0 : this.controlsBar.defenderCosts[this.controlsBar.selectedDefender];
+
+            // mouse position on grid
+            const gridPositionX = this.mouse.x - (this.mouse.x % Cell.cellSize);
+            const gridPositionY = this.mouse.y - (this.mouse.y % Cell.cellSize);
+            if (gridPositionY > Cell.cellSize - 10) {
+                for (let i = 0; i < this.defenders.length; i++) {
+                    // can't place defender on top of defender
+                    if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;
+                }
+    
+                // placing defender
+                if (defenderCost) {
+                    this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
+                    this.numberOfResources -= defenderCost;
+                    this.controlsBar.selectedDefender = 0;
+                }
             }
         });
     }
@@ -92,6 +117,10 @@ export default class Game {
         this.projectiles.forEach(projectile => projectile.render(context));
         this.resources.forEach(resource => resource.render(context));
         this.floatingMessages.forEach(message => message.render(context));
+
+        if (this.controlsBar.selectedDefender === this.controlsBar.archerCard.id) {
+            context.drawImage(this.controlsBar.archerImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
+        }
     }
 
     update(delta) {

@@ -7,7 +7,7 @@ export default class Defender {
         this.height = 40;
         this.cellX = cellX;
         this.cellY = cellY;
-        // center hitbox inside cell
+        // hitbox position
         this.x = this.cellX + 50;
         this.y = this.cellY + (Cell.cellSize - this.height) / 2;
         this.attacking = false;
