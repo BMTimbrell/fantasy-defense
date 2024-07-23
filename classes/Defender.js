@@ -1,5 +1,6 @@
 import Cell from './Cell.js';
 import Projectile from './Projectile.js';
+import FloatingMessage from './FloatingMessage.js';
 
 export default class Defender {
     constructor(cellX, cellY, game) {
@@ -22,10 +23,17 @@ export default class Defender {
         this.animationTimer = 0;
         this.animationInterval = 100;
         this.idleFrame = 0;
+        this.maxIdleFrame = 5;
         this.attackingFrame = 0;
+        // when to attack
+        this.attackFrame = 7;
+        this.maxAttackingFrame = 8;
         this.dyingFrame = 0;
+        this.dyingFrameY = 5;
+        this.maxDyingFrame = 3;
         this.attackInterval = 3000;
         this.attackTimer = this.attackInterval;
+        this.attackTrigger = false;
         this.spriteSize = 200;
         this.image = new Image();
         this.image.src = '../images/Archer.png';
@@ -34,9 +42,9 @@ export default class Defender {
     render(context) {
         // context.fillStyle = 'blue';
         // context.fillRect(this.x, this.y, this.width, this.height);
-        // context.fillStyle = 'gold';
-        // context.font = '20px Arial';
-        // context.fillText(Math.floor(this.health), this.x + 15, this.y + 30);
+        context.fillStyle = 'gold';
+        context.font = '20px Arial';
+        context.fillText(Math.floor(this.health), this.x, this.y);
 
         context.drawImage(
             this.image, 
@@ -53,13 +61,24 @@ export default class Defender {
     }
 
     update(delta) {
+
         if (this.dead) this.game.defenders = this.game.defenders.filter(el => el !== this);
         if (this.dying) {
             this.animate('dying');
         }
         // check for enemy to attack
-        if (this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x) && !this.dying) this.attacking = true;
-        else this.attacking = false;
+        // knight check for enemies
+        let numberOfEnemies = 0;
+        if (!(this instanceof Knight) && this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x) && !this.dying) this.attacking = true;
+        else if (this instanceof Knight && !this.dying) {
+            this.game.enemies.forEach(enemy => {
+                if (this.game.checkCollision(enemy, this) && !enemy.dying) {
+                    numberOfEnemies++;
+                }
+               if (numberOfEnemies) this.attacking = true;
+               else this.attacking = false;
+            });
+        } else this.attacking = false;
 
         this.animationTimer += delta;
 
@@ -68,6 +87,28 @@ export default class Defender {
             // attacking interval
             if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
             if (this.attackTimer >= this.attackInterval) {
+                if (this.attackTrigger) {
+                    if (this instanceof Knight) {
+                        // damage any enemies colliding
+                        this.game.enemies.forEach(enemy => {
+                            if (this.game.checkCollision(enemy, this) && !enemy.dying) {
+                                enemy.health -= 20;    
+                                if (enemy.health <= 0) {
+                                    const coinImage = new Image();
+                                    coinImage.src = "../images/Coin.png"
+                                    this.game.floatingMessages.push(new FloatingMessage('', enemy.x, enemy.y, 16, 'black', coinImage));
+                                    this.game.gold += enemy.maxHealth / 2;
+                                    numberOfEnemies--;
+                                    enemy.dying = true;
+                                    this.game.enemyPositions = this.game.enemyPositions.filter(el => el.id !== enemy.id);
+                                }   
+                            }
+                        });
+                    } else {
+                        this.game.projectiles.push(new Projectile(this.cellX + 20, this.cellY + 32));
+                    }
+                    this.attackTrigger = false;
+                }
                 // change to attacking animation
                 this.animate('attacking');
             } else {
@@ -75,7 +116,6 @@ export default class Defender {
             }
 
             if (this.attackingFrame === this.maxFrame) {
-                this.game.projectiles.push(new Projectile(this.cellX + 20, this.cellY + 32));
                 this.attackingFrame = this.minFrame;
                 this.attackTimer = 0;
             }
@@ -98,7 +138,7 @@ export default class Defender {
                     this.attackingFrame = 0;
 
                     this.frameY = 0;
-                    this.maxFrame = 5;
+                    this.maxFrame = this.maxIdleFrame;
 
                     if (this.idleFrame < this.maxFrame) {
                         this.idleFrame++;
@@ -112,7 +152,7 @@ export default class Defender {
                     this.idleFrame = 0;
 
                     this.frameY = 2;
-                    this.maxFrame = 8;
+                    this.maxFrame = this.maxAttackingFrame;
 
                     if (this.attackingFrame < this.maxFrame) {
                         this.attackingFrame++;
@@ -120,10 +160,14 @@ export default class Defender {
                     else this.attackingFrame = this.minFrame;
             
                     this.frameX = this.attackingFrame;
+
+                    if (this.frameX === this.attackFrame) {
+                        this.attackTrigger = true;
+                    }
                     break;
                 case 'dying':
-                    this.frameY = 5;
-                    this.maxFrame = 3;
+                    this.frameY = this.dyingFrameY;
+                    this.maxFrame = this.maxDyingFrame;
 
                     if (this.dyingFrame < this.maxFrame) {
                         this.dyingFrame++;
@@ -137,5 +181,16 @@ export default class Defender {
             
         }
 
+    }
+}
+
+export class Knight extends Defender {
+    constructor(cellX, cellY, game) {
+        super(cellX, cellY, game);
+        this.image.src = '../images/Knight.png';
+        this.maxAttackingFrame = 6;
+        this.attackFrame = 3;
+        this.dyingFrameY = 7;
+        this.health = 500;
     }
 }

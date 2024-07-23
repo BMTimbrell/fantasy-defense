@@ -1,6 +1,6 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
-import Defender from './Defender.js';
+import Defender, { Knight } from './Defender.js';
 import Enemy from './Enemy.js';
 import Resource from './Resource.js';
 import FloatingMessage from './FloatingMessage.js';
@@ -68,12 +68,28 @@ export default class Game {
                 !this.gameOver
             ) {
                 // cancel selection
-                if (this.controlsBar.selectedDefender === 1) {
+                if (this.controlsBar.selectedDefender === this.controlsBar.archerCard.id) {
                     this.controlsBar.selectedDefender = 0;
                     return;
                 }
-                // select defender
-                if (this.numberOfResources >= this.controlsBar.archerCard.defenderCost) this.controlsBar.selectedDefender = 1;
+                // select archer
+                if (this.numberOfResources >= this.controlsBar.archerCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.archerCard.id;
+                // not enough to buy
+                else {
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    return;
+                }
+            } else if (
+                this.checkCollision(this.mouse, this.controlsBar.knightCard) && 
+                !this.gameOver
+            ) {
+                // cancel selection
+                if (this.controlsBar.selectedDefender === this.controlsBar.knightCard.id) {
+                    this.controlsBar.selectedDefender = 0;
+                    return;
+                }
+                // select knight
+                if (this.numberOfResources >= this.controlsBar.knightCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.knightCard.id;
                 // not enough to buy
                 else {
                     this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
@@ -94,7 +110,10 @@ export default class Game {
     
                 // placing defender
                 if (defenderCost) {
-                    this.defenders.push(new Defender(gridPositionX, gridPositionY, this));
+                    this.defenders.push(
+                        this.controlsBar.selectedDefender === this.controlsBar.archerCard.id ? new Defender(gridPositionX, gridPositionY, this) :
+                        this.controlsBar.selectedDefender === this.controlsBar.knightCard.id ? new Knight(gridPositionX, gridPositionY, this) : ''
+                    );
                     this.numberOfResources -= defenderCost;
                     this.controlsBar.selectedDefender = 0;
                 }
@@ -127,6 +146,8 @@ export default class Game {
 
         if (this.controlsBar.selectedDefender === this.controlsBar.archerCard.id) {
             context.drawImage(this.controlsBar.archerImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
+        } else if (this.controlsBar.selectedDefender === this.controlsBar.knightCard.id) {
+            context.drawImage(this.controlsBar.knightImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
         }
     }
 
@@ -169,7 +190,6 @@ export default class Game {
             if (this.mouse.x && this.mouse.y && this.checkCollision(resource, this.mouse)) {
                 this.numberOfResources += resource.amount;
                 this.floatingMessages.push(new FloatingMessage('+' + resource.amount, resource.x, resource.y, 20, 'black'));
-                //this.floatingMessages.push(new FloatingMessage('+' + resource.amount, 105, 50, 35, 'gold'));
                 this.resources = this.resources.filter(el => el !== resource);
             }
         });
@@ -183,7 +203,7 @@ export default class Game {
         // update projectiles
         this.projectiles.forEach(projectile => {
             projectile.update(this);
-            if (projectile.x > this.canvas.width - Cell.cellSize) {
+            if (projectile.x > this.canvas.width) {
                 this.projectiles = this.projectiles.filter(el => el !== projectile);
             }
         });

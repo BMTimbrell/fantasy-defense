@@ -8,24 +8,32 @@ export default class ControlsBar {
         this.coinImage = new Image();
         this.resourceImage = new Image();
         this.archerImage = new Image();
+        this.knightImage = new Image();
         this.coinImage.src = '../images/Coin.png';
         this.resourceImage.src = '../images/Resource.png';
         this.archerImage.src = '../images/Archer(no-shadows).png';
+        this.knightImage.src = '../images/Knight(no-shadows).png';
         this.archerCard = {
             id: 1,
             x: 130,
             y: 15,
-            width: 50,
+            width: 60,
             height: 70,
             defenderCost: 100
         };
         this.knightCard = {
             id: 2,
+            x: 200,
+            y: 15,
+            width: 60,
+            height: 70,
+            defenderCost: 50
         };
         this.selectedDefender = 0;
         this.defenderCosts = {
             0: 0,
-            [this['archerCard']['id']]: this.archerCard['defenderCost']
+            [this['archerCard']['id']]: this.archerCard['defenderCost'],
+            [this['knightCard']['id']]: this.knightCard['defenderCost']
         };
     }
 
@@ -75,6 +83,18 @@ export default class ControlsBar {
         context.font = '20px Arial';
         context.fillText(this.archerCard.defenderCost, this.archerCard.x + 15, this.archerCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.archerCard.x + 2, this.archerCard.y + 48, 200, 200);
+        context.restore();
+
+        // knight card
+        context.save();
+        context.globalAlpha = this.game.numberOfResources >= this.knightCard.defenderCost ? 1 : 0.6;
+        context.fillStyle = 'black';
+        context.fillRect(this.knightCard.x, this.knightCard.y, this.knightCard.width, this.knightCard.height);
+        context.drawImage(this.knightImage, 0, 0, 200, 200, this.knightCard.x - 75, this.knightCard.y - 75, 200, 200);
+        context.fillStyle = 'gold';
+        context.font = '20px Arial';
+        context.fillText(this.knightCard.defenderCost, this.knightCard.x + 15, this.knightCard.y + 65);
+        context.drawImage(this.resourceImage, 0, 0, 200, 200, this.knightCard.x + 2, this.knightCard.y + 48, 200, 200);
         context.restore();
     }
 }
