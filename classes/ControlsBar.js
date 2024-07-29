@@ -85,6 +85,8 @@ export default class ControlsBar {
             [this['witchCard']['id']]: this.witchCard['defenderCost'],
             99: -1
         };
+
+        this.selectedWitchHealth = 100;
     }
 
     render(context) {

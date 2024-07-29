@@ -44,9 +44,9 @@ export default class Defender {
     render(context) {
         // context.fillStyle = 'blue';
         // context.fillRect(this.x, this.y, this.width, this.height);
-        context.fillStyle = 'gold';
-        context.font = '20px Arial';
-        context.fillText(Math.floor(this.health), this.x, this.y);
+        // context.fillStyle = 'gold';
+        // context.font = '20px Arial';
+        // context.fillText(Math.floor(this.health), this.x, this.y);
 
         if (!(this instanceof Witch)) {
             context.drawImage(
@@ -72,6 +72,14 @@ export default class Defender {
                 64, 
                 64
             );
+        }
+
+        
+        if (this.game.checkCollision(this.game.mouse, this)) {
+            context.fillStyle = 'gray';
+            context.fillRect(this.x - 20, this.y - 15, 40, 5);
+            context.fillStyle = 'green';
+            context.fillRect(this.x - 20, this.y - 15, this.health / this.maxHealth * 40, 5);
         }
     }
 
@@ -264,7 +272,7 @@ export class Wizard extends Defender {
 }
 
 export class Witch extends Defender {
-    constructor(cellX, cellY, game) {
+    constructor(cellX, cellY, game, health = 100) {
         super(cellX, cellY, game);
         this.image.src = '../images/Witch.png';
         this.maxAttackingFrame = 7;
@@ -273,5 +281,6 @@ export class Witch extends Defender {
         this.maxIdleFrame = 3;
         this.maxFrame = 3;
         this.attackTimer = 0;
+        this.health = health;
     }
 }

@@ -20,7 +20,7 @@ export default class Game {
         this.canvasPosition = canvas.getBoundingClientRect();
         this.gameOver = false;
         this.defenders = [];
-        this.numberOfResources = 300;
+        this.numberOfResources = 800;
         this.gold = 0;
         this.luck = 0;
         this.resources = [];
@@ -168,6 +168,7 @@ export default class Game {
                     this.defenders.forEach(defender => {
                         if (defender instanceof Witch && this.checkCollision(this.mouse, defender)) {
                             this.controlsBar.selectedDefender = 99;
+                            this.controlsBar.selectedWitchHealth = defender.health;
                             this.defenders = this.defenders.filter(el => el !== defender);
                             witchSelected = true;
                         }
@@ -189,8 +190,9 @@ export default class Game {
                 // placing defender
                 if (defenderCost) {
                     if (defenderCost === -1) {
-                        this.defenders.push(new Witch(gridPositionX, gridPositionY, this));
+                        this.defenders.push(new Witch(gridPositionX, gridPositionY, this, this.controlsBar.selectedWitchHealth));
                         this.controlsBar.selectedDefender = 0;
+                        this.controlsBar.selectedWitchHealth = 100;
                     } else {
                         this.defenders.push(
                             this.controlsBar.selectedDefender === this.controlsBar.archerCard.id ? new Defender(gridPositionX, gridPositionY, this) :
@@ -258,8 +260,6 @@ export default class Game {
             enemy.update(delta);
             if (enemy.x < 0) this.gameOver = true;
         });
-
-        console.log(this.luck);
 
         // enemy spawn interval
         if (this.enemyTimer >= this.enemiesInterval) {
