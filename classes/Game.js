@@ -137,6 +137,21 @@ export default class Game {
                     this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
                     return;
                 }
+            } else if (
+                this.checkCollision(this.mouse, this.controlsBar.trashcanCard) && 
+                !this.gameOver
+            ) {
+                // cancel trashcan selection
+                if (this.controlsBar.selectedDefender === this.controlsBar.trashcanCard.id) {
+                    this.controlsBar.selectedDefender = 0;
+                    return;
+                }
+
+                // cancel other selections
+                this.controlsBar.selectedDefender = 0;
+
+                // select trashcan
+                this.controlsBar.selectedDefender = this.controlsBar.trashcanCard.id;
             }
 
             let defenderCost = !this.controlsBar.defenderCosts[this.controlsBar.selectedDefender] ? 0 : this.controlsBar.defenderCosts[this.controlsBar.selectedDefender];
@@ -162,7 +177,13 @@ export default class Game {
 
                 for (let i = 0; i < this.defenders.length; i++) {
                     // can't place defender on top of defender
-                    if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;  
+                    if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) {
+                        if (this.controlsBar.selectedDefender === this.controlsBar.trashcanCard.id) {
+                            this.defenders = this.defenders.filter(el => el !== this.defenders[i]);
+                            this.controlsBar.selectedDefender = 0;
+                        }
+                        return;  
+                    }
                 }
     
                 // placing defender
@@ -219,6 +240,8 @@ export default class Game {
             context.drawImage(this.controlsBar.wizardImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
         } else if (this.controlsBar.selectedDefender === this.controlsBar.witchCard.id || this.controlsBar.selectedDefender === 99) {
             context.drawImage(this.controlsBar.witchImage, 0, 5 * 64 + 3, 64, 64, this.mouse.x - 32, this.mouse.y - 32, 64, 64);
+        } else if (this.controlsBar.selectedDefender === this.controlsBar.trashcanCard.id) {
+            context.drawImage(this.controlsBar.trashcanImage, 0, 0, 64, 64, this.mouse.x - 32, this.mouse.y - 32, 64, 64);
         }
     }
 
@@ -235,6 +258,8 @@ export default class Game {
             enemy.update(delta);
             if (enemy.x < 0) this.gameOver = true;
         });
+
+        console.log(this.luck);
 
         // enemy spawn interval
         if (this.enemyTimer >= this.enemiesInterval) {

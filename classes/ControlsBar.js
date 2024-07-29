@@ -12,6 +12,7 @@ export default class ControlsBar {
         this.priestImage = new Image();
         this.wizardImage = new Image();
         this.witchImage = new Image();
+        this.trashcanImage = new Image();
         this.coinImage.src = '../images/Coin.png';
         this.resourceImage.src = '../images/Resource.png';
         this.archerImage.src = '../images/Archer(no-shadows).png';
@@ -19,6 +20,7 @@ export default class ControlsBar {
         this.priestImage.src = '../images/Priest(no-shadows).png';
         this.wizardImage.src = '../images/Wizard(no-shadows).png';
         this.witchImage.src = '../images/Witch.png';
+        this.trashcanImage.src = '../images/trashcan.png';
 
         this.archerCard = {
             id: 1,
@@ -63,6 +65,14 @@ export default class ControlsBar {
             width: 60,
             height: 70,
             defenderCost: 350
+        };
+
+        this.trashcanCard = {
+            id: 6,
+            x: 500,
+            y: 15,
+            width: 60,
+            height: 70
         };
 
         this.selectedDefender = 0;
@@ -171,6 +181,15 @@ export default class ControlsBar {
         context.font = '20px Arial';
         context.fillText(this.witchCard.defenderCost, this.witchCard.x + 15, this.witchCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.witchCard.x + 2, this.witchCard.y + 48, 200, 200);
+        context.restore();
+
+        // delete card
+        context.save();
+        context.fillStyle = 'black';
+        context.fillRect(this.trashcanCard.x, this.trashcanCard.y, this.trashcanCard.width, this.trashcanCard.height);
+        context.drawImage(this.trashcanImage, 0, 0, 64, 64, this.trashcanCard.x - 2, this.trashcanCard.y + 3, 64, 64);
+        context.fillStyle = 'gold';
+        context.font = '20px Arial';
         context.restore();
     }
 }
