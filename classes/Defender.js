@@ -1,5 +1,5 @@
 import Cell from './Cell.js';
-import Projectile from './Projectile.js';
+import Projectile, { Fireball, Voidball } from './Projectile.js';
 import FloatingMessage from './FloatingMessage.js';
 
 export default class Defender {
@@ -32,6 +32,7 @@ export default class Defender {
         this.dyingFrame = 0;
         this.dyingFrameY = 5;
         this.maxDyingFrame = 3;
+
         this.attackInterval = 3000;
         this.attackTimer = this.attackInterval;
         this.attackTrigger = false;
@@ -47,18 +48,31 @@ export default class Defender {
         context.font = '20px Arial';
         context.fillText(Math.floor(this.health), this.x, this.y);
 
-        context.drawImage(
-            this.image, 
-            this.frameX * this.spriteSize, 
-            this.frameY * this.spriteSize, 
-            this.spriteSize, 
-            this.spriteSize, 
-            this.cellX + (Cell.cellSize - this.spriteSize) / 2, 
-            this.cellY + (Cell.cellSize - this.spriteSize) / 2, 
-            this.spriteSize, 
-            this.spriteSize
-        );
-
+        if (!(this instanceof Witch)) {
+            context.drawImage(
+                this.image, 
+                this.frameX * this.spriteSize, 
+                this.frameY * this.spriteSize, 
+                this.spriteSize, 
+                this.spriteSize, 
+                this.cellX + (Cell.cellSize - this.spriteSize) / 2, 
+                this.cellY + (Cell.cellSize - this.spriteSize) / 2, 
+                this.spriteSize, 
+                this.spriteSize
+            );
+        } else {
+            context.drawImage(
+                this.image, 
+                this.frameX * 64, 
+                this.frameY * 64, 
+                64, 
+                64, 
+                this.cellX + (Cell.cellSize - 64) / 2 + 5, 
+                this.cellY + (Cell.cellSize - 64) / 2 - 15, 
+                64, 
+                64
+            );
+        }
     }
 
     update(delta) {
@@ -131,13 +145,16 @@ export default class Defender {
                         if (this instanceof Priest) {
                             this.game.defenders.forEach(defender => {
                                 if (defender.cellY === this.cellY && defender.cellX === this.cellX + Cell.cellSize) {
-                                    //defender.health += defender.maxHealth % defender.health >= 50 ? 50 : defender.maxHealth % defender.health;
                                     defender.health += Math.abs(defender.health - defender.maxHealth) >= 50 ? 50 : defender.maxHealth % defender.health;
                                 }
                             });
                         // fire projectiles
                         } else {
-                            this.game.projectiles.push(new Projectile(this.cellX + 20, this.cellY + 32));
+                            this.game.projectiles.push(
+                                this instanceof Witch ? new Voidball(this.cellX + 50, this.cellY + 45) : 
+                                this instanceof Wizard ? new Fireball(this.cellX + 50, this.cellY + 45) : 
+                                new Projectile(this.cellX + 20, this.cellY + 32)
+                            );
                         }
                     }
                 }
@@ -177,7 +194,8 @@ export default class Defender {
                 case 'attacking':
                     // reset idle animation
                     this.idleFrame = 0;
-                    this.frameY = this instanceof Priest ? 5 : 2;
+                    this.frameY = this instanceof Priest ? 5 : this instanceof Wizard ? 6 : 2;
+
                     this.maxFrame = this.maxAttackingFrame;
 
                     if (this.attackingFrame < this.maxFrame) {
@@ -224,6 +242,7 @@ export class Knight extends Defender {
     }
 }
 
+
 export class Priest extends Defender {
     constructor(cellX, cellY, game) {
         super(cellX, cellY, game);
@@ -231,5 +250,28 @@ export class Priest extends Defender {
         this.maxAttackingFrame = 5;
         this.attackFrame = 3;
         this.dyingFrameY = 9;
+    }
+}
+
+export class Wizard extends Defender {
+    constructor(cellX, cellY, game) {
+        super(cellX, cellY, game);
+        this.image.src = '../images/Wizard.png';
+        this.maxAttackingFrame = 5;
+        this.attackFrame = 4;
+        this.dyingFrameY = 9;
+    }
+}
+
+export class Witch extends Defender {
+    constructor(cellX, cellY, game) {
+        super(cellX, cellY, game);
+        this.image.src = '../images/Witch.png';
+        this.maxAttackingFrame = 7;
+        this.attackFrame = 4;
+        this.dyingFrameY = 4;
+        this.maxIdleFrame = 3;
+        this.maxFrame = 3;
+        this.attackTimer = 0;
     }
 }

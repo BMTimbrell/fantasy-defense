@@ -9,7 +9,7 @@ export default class Resource {
         this.amounts = [10, 20, 30, 40, 50, 60];
         this.amountsIndex = Math.floor(Math.random() * this.amounts.length + game.luck);
         this.amount = this.amountsIndex >= this.amounts.length ? this.amounts[this.amounts.length - 1]
-            :  this.amountsIndex <= 0 ? this.amounts[0]
+            : this.amountsIndex <= 0 ? this.amounts[0]
             : this.amounts[this.amountsIndex];
 
         this.image = new Image();

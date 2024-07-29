@@ -53,3 +53,22 @@ export default class Projectile {
         );
     }
 }
+
+export class Fireball extends Projectile {
+    constructor(x, y) {
+        super(x, y);
+        this.image.src = '../images/Fireball2.png';
+        this.power = 40;
+        this.spriteSize = 22;
+        this.width = 22;
+        this.height = 22;
+    }
+}
+
+export class Voidball extends Fireball {
+    constructor(x, y) {
+        super(x, y);
+        this.image.src = '../images/Voidball.png';
+        this.power = 60;
+    }
+}

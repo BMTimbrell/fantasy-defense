@@ -10,10 +10,10 @@ export default class Cell {
     }
 
     render(context) {
-        // if (this.game.checkCollision(this, this.game.mouse)) {
-        //     context.strokeStyle = 'black';
-        //     context.strokeRect(this.x, this.y, this.width, this.height);
-        // }
+        if (this.game.checkCollision(this, this.game.mouse) && this.game.controlsBar.selectedDefender) {
+             context.strokeStyle = 'black';
+             context.strokeRect(this.x, this.y, this.width, this.height);
+        }
     }
 
 }

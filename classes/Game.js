@@ -1,6 +1,6 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
-import Defender, { Knight, Priest } from './Defender.js';
+import Defender, { Knight, Priest, Wizard, Witch } from './Defender.js';
 import Enemy from './Enemy.js';
 import Resource from './Resource.js';
 import FloatingMessage from './FloatingMessage.js';
@@ -42,6 +42,8 @@ export default class Game {
                 * this.canvas.width / this.canvas.clientWidth;
             this.mouse.y = (e.y - this.canvasPosition.top) 
                 * this.canvas.height / this.canvas.clientHeight;
+
+
         });
 
         this.canvas.addEventListener('mouseleave', () => {
@@ -51,14 +53,6 @@ export default class Game {
 
         window.addEventListener('resize', () => {
             this.canvasPosition = this.canvas.getBoundingClientRect();
-        });
-
-        this.canvas.addEventListener('mousedown', () => {
-            this.mouse.clicked = true;
-        });
-
-        this.canvas.addEventListener('mouseup', () => {
-            this.mouse.clicked = false;
         });
 
         this.canvas.addEventListener('click', () => {
@@ -111,6 +105,38 @@ export default class Game {
                     this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
                     return;
                 }
+            } else if (
+                this.checkCollision(this.mouse, this.controlsBar.wizardCard) && 
+                !this.gameOver
+            ) {
+                // cancel selection
+                if (this.controlsBar.selectedDefender === this.controlsBar.wizardCard.id) {
+                    this.controlsBar.selectedDefender = 0;
+                    return;
+                }
+                // select wizard
+                if (this.numberOfResources >= this.controlsBar.wizardCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.wizardCard.id;
+                // not enough to buy
+                else {
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    return;
+                }
+            } else if (
+                this.checkCollision(this.mouse, this.controlsBar.witchCard) && 
+                !this.gameOver
+            ) {
+                // cancel selection
+                if (this.controlsBar.selectedDefender === this.controlsBar.witchCard.id) {
+                    this.controlsBar.selectedDefender = 0;
+                    return;
+                }
+                // select witch
+                if (this.numberOfResources >= this.controlsBar.witchCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.witchCard.id;
+                // not enough to buy
+                else {
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    return;
+                }
             }
 
             let defenderCost = !this.controlsBar.defenderCosts[this.controlsBar.selectedDefender] ? 0 : this.controlsBar.defenderCosts[this.controlsBar.selectedDefender];
@@ -118,21 +144,43 @@ export default class Game {
             // mouse position on grid
             const gridPositionX = this.mouse.x - (this.mouse.x % Cell.cellSize);
             const gridPositionY = this.mouse.y - (this.mouse.y % Cell.cellSize);
+
+            
             if (gridPositionY > Cell.cellSize - 10) {
+                // check for witch
+                let witchSelected = false;
+                if (this.controlsBar.selectedDefender !== 99 ) {
+                    this.defenders.forEach(defender => {
+                        if (defender instanceof Witch && this.checkCollision(this.mouse, defender)) {
+                            this.controlsBar.selectedDefender = 99;
+                            this.defenders = this.defenders.filter(el => el !== defender);
+                            witchSelected = true;
+                        }
+                    });
+                }
+                if (witchSelected) return;
+
                 for (let i = 0; i < this.defenders.length; i++) {
                     // can't place defender on top of defender
-                    if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;
+                    if (this.defenders[i].cellX === gridPositionX && this.defenders[i].cellY === gridPositionY) return;  
                 }
     
                 // placing defender
                 if (defenderCost) {
-                    this.defenders.push(
-                        this.controlsBar.selectedDefender === this.controlsBar.archerCard.id ? new Defender(gridPositionX, gridPositionY, this) :
-                        this.controlsBar.selectedDefender === this.controlsBar.knightCard.id ? new Knight(gridPositionX, gridPositionY, this) : 
-                        this.controlsBar.selectedDefender === this.controlsBar.priestCard.id ? new Priest(gridPositionX, gridPositionY, this) : ''
-                    );
-                    this.numberOfResources -= defenderCost;
-                    this.controlsBar.selectedDefender = 0;
+                    if (defenderCost === -1) {
+                        this.defenders.push(new Witch(gridPositionX, gridPositionY, this));
+                        this.controlsBar.selectedDefender = 0;
+                    } else {
+                        this.defenders.push(
+                            this.controlsBar.selectedDefender === this.controlsBar.archerCard.id ? new Defender(gridPositionX, gridPositionY, this) :
+                            this.controlsBar.selectedDefender === this.controlsBar.knightCard.id ? new Knight(gridPositionX, gridPositionY, this) : 
+                            this.controlsBar.selectedDefender === this.controlsBar.priestCard.id ? new Priest(gridPositionX, gridPositionY, this) :
+                            this.controlsBar.selectedDefender === this.controlsBar.wizardCard.id ? new Wizard(gridPositionX, gridPositionY, this) : 
+                            this.controlsBar.selectedDefender === this.controlsBar.witchCard.id ? new Witch(gridPositionX, gridPositionY, this) : ''
+                        );
+                        this.numberOfResources -= defenderCost;
+                        this.controlsBar.selectedDefender = 0;
+                    }
                 }
             }
         });
@@ -167,6 +215,10 @@ export default class Game {
             context.drawImage(this.controlsBar.knightImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
         } else if (this.controlsBar.selectedDefender === this.controlsBar.priestCard.id) {
             context.drawImage(this.controlsBar.priestImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
+        } else if (this.controlsBar.selectedDefender === this.controlsBar.wizardCard.id) {
+            context.drawImage(this.controlsBar.wizardImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
+        } else if (this.controlsBar.selectedDefender === this.controlsBar.witchCard.id || this.controlsBar.selectedDefender === 99) {
+            context.drawImage(this.controlsBar.witchImage, 0, 5 * 64 + 3, 64, 64, this.mouse.x - 32, this.mouse.y - 32, 64, 64);
         }
     }
 
@@ -213,11 +265,14 @@ export default class Game {
             }
         });
 
-        // luck gradually increase
-        // if (this.luck <= 0) this.luck += 0.0001 * delta;
-        //console.log(this.luck);
         // update defenders
-        this.defenders.forEach(defender => defender.update(delta));
+        let numberOfPriests = 0;
+        this.defenders.forEach(defender => {
+            if (defender instanceof Priest) numberOfPriests++;
+            defender.update(delta);
+        });
+
+        this.luck = numberOfPriests / 2 > 3 ? 3 : numberOfPriests / 2;
 
         // update projectiles
         this.projectiles.forEach(projectile => {
