@@ -1,6 +1,6 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
-import Defender, { Knight } from './Defender.js';
+import Defender, { Knight, Priest } from './Defender.js';
 import Enemy from './Enemy.js';
 import Resource from './Resource.js';
 import FloatingMessage from './FloatingMessage.js';
@@ -95,6 +95,22 @@ export default class Game {
                     this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
                     return;
                 }
+            } else if (
+                this.checkCollision(this.mouse, this.controlsBar.priestCard) && 
+                !this.gameOver
+            ) {
+                // cancel selection
+                if (this.controlsBar.selectedDefender === this.controlsBar.priestCard.id) {
+                    this.controlsBar.selectedDefender = 0;
+                    return;
+                }
+                // select priest
+                if (this.numberOfResources >= this.controlsBar.priestCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.priestCard.id;
+                // not enough to buy
+                else {
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    return;
+                }
             }
 
             let defenderCost = !this.controlsBar.defenderCosts[this.controlsBar.selectedDefender] ? 0 : this.controlsBar.defenderCosts[this.controlsBar.selectedDefender];
@@ -112,7 +128,8 @@ export default class Game {
                 if (defenderCost) {
                     this.defenders.push(
                         this.controlsBar.selectedDefender === this.controlsBar.archerCard.id ? new Defender(gridPositionX, gridPositionY, this) :
-                        this.controlsBar.selectedDefender === this.controlsBar.knightCard.id ? new Knight(gridPositionX, gridPositionY, this) : ''
+                        this.controlsBar.selectedDefender === this.controlsBar.knightCard.id ? new Knight(gridPositionX, gridPositionY, this) : 
+                        this.controlsBar.selectedDefender === this.controlsBar.priestCard.id ? new Priest(gridPositionX, gridPositionY, this) : ''
                     );
                     this.numberOfResources -= defenderCost;
                     this.controlsBar.selectedDefender = 0;
@@ -148,6 +165,8 @@ export default class Game {
             context.drawImage(this.controlsBar.archerImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
         } else if (this.controlsBar.selectedDefender === this.controlsBar.knightCard.id) {
             context.drawImage(this.controlsBar.knightImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
+        } else if (this.controlsBar.selectedDefender === this.controlsBar.priestCard.id) {
+            context.drawImage(this.controlsBar.priestImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
         }
     }
 

@@ -12,7 +12,8 @@ export default class Defender {
         this.x = this.cellX + 50;
         this.y = this.cellY + (Cell.cellSize - this.height) / 2;
         this.attacking = false;
-        this.health = 100;
+        this.maxHealth = 100;
+        this.health = this.maxHealth;
         this.dying = false;
         this.dead = false;
         this.game = game;
@@ -66,11 +67,31 @@ export default class Defender {
         if (this.dying) {
             this.animate('dying');
         }
-        // check for enemy to attack
+
         // knight check for enemies
         let numberOfEnemies = 0;
-        if (!(this instanceof Knight) && this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x) && !this.dying) this.attacking = true;
-        else if (this instanceof Knight && !this.dying) {
+
+        // priest check for heal
+        if (this instanceof Priest && !this.dying) {
+            let defenders = 0;
+            this.game.defenders.forEach(defender => {
+                if (defender.cellY === this.cellY && defender.cellX === this.cellX + Cell.cellSize && !defender.dying) {
+                    if (defender.health < defender.maxHealth) defenders++;
+                    else defenders = 0;
+                }
+            });
+
+            if (this.attacking || defenders || this.attackTimer < this.attackInterval) {
+                this.attacking = true;
+            }
+            // reset healing timer once ally full health and most of healing timer is finished. Stops bug with skipping healing animation
+            if (!defenders && this.attackTimer > this.attackInterval - 50 && this.attackTimer < this.attackInterval) this.attacking = false;
+            
+
+        // check for enemy to attack
+        } else if (!(this instanceof Knight) && this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x) && !this.dying) {
+            this.attacking = true;
+        } else if (this instanceof Knight && !this.dying) {
             this.game.enemies.forEach(enemy => {
                 if (this.game.checkCollision(enemy, this) && !enemy.dying) {
                     numberOfEnemies++;
@@ -88,6 +109,7 @@ export default class Defender {
             if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
             if (this.attackTimer >= this.attackInterval) {
                 if (this.attackTrigger) {
+                    this.attackTrigger = false;
                     if (this instanceof Knight) {
                         // damage any enemies colliding
                         this.game.enemies.forEach(enemy => {
@@ -105,19 +127,24 @@ export default class Defender {
                             }
                         });
                     } else {
-                        this.game.projectiles.push(new Projectile(this.cellX + 20, this.cellY + 32));
+                        // priest heal
+                        if (this instanceof Priest) {
+                            this.game.defenders.forEach(defender => {
+                                if (defender.cellY === this.cellY && defender.cellX === this.cellX + Cell.cellSize) {
+                                    //defender.health += defender.maxHealth % defender.health >= 50 ? 50 : defender.maxHealth % defender.health;
+                                    defender.health += Math.abs(defender.health - defender.maxHealth) >= 50 ? 50 : defender.maxHealth % defender.health;
+                                }
+                            });
+                        // fire projectiles
+                        } else {
+                            this.game.projectiles.push(new Projectile(this.cellX + 20, this.cellY + 32));
+                        }
                     }
-                    this.attackTrigger = false;
                 }
                 // change to attacking animation
                 this.animate('attacking');
             } else {
                 this.animate('idle');
-            }
-
-            if (this.attackingFrame === this.maxFrame) {
-                this.attackingFrame = this.minFrame;
-                this.attackTimer = 0;
             }
         } else if (!this.dying) {
             // change back to idle
@@ -150,14 +177,15 @@ export default class Defender {
                 case 'attacking':
                     // reset idle animation
                     this.idleFrame = 0;
-
-                    this.frameY = 2;
+                    this.frameY = this instanceof Priest ? 5 : 2;
                     this.maxFrame = this.maxAttackingFrame;
 
                     if (this.attackingFrame < this.maxFrame) {
                         this.attackingFrame++;
+                    } else {
+                        this.attackingFrame = this.minFrame;
+                        this.attackTimer = 0;
                     }
-                    else this.attackingFrame = this.minFrame;
             
                     this.frameX = this.attackingFrame;
 
@@ -191,6 +219,17 @@ export class Knight extends Defender {
         this.maxAttackingFrame = 6;
         this.attackFrame = 3;
         this.dyingFrameY = 7;
-        this.health = 500;
+        this.maxHealth = 500;
+        this.health = this.maxHealth;
+    }
+}
+
+export class Priest extends Defender {
+    constructor(cellX, cellY, game) {
+        super(cellX, cellY, game);
+        this.image.src = '../images/Priest.png';
+        this.maxAttackingFrame = 5;
+        this.attackFrame = 3;
+        this.dyingFrameY = 9;
     }
 }

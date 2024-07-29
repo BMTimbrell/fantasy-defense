@@ -9,13 +9,15 @@ export default class ControlsBar {
         this.resourceImage = new Image();
         this.archerImage = new Image();
         this.knightImage = new Image();
+        this.priestImage = new Image();
         this.coinImage.src = '../images/Coin.png';
         this.resourceImage.src = '../images/Resource.png';
         this.archerImage.src = '../images/Archer(no-shadows).png';
         this.knightImage.src = '../images/Knight(no-shadows).png';
+        this.priestImage.src = '../images/Priest(no-shadows).png';
         this.archerCard = {
             id: 1,
-            x: 130,
+            x: 150,
             y: 15,
             width: 60,
             height: 70,
@@ -23,17 +25,26 @@ export default class ControlsBar {
         };
         this.knightCard = {
             id: 2,
-            x: 200,
+            x: 220,
             y: 15,
             width: 60,
             height: 70,
             defenderCost: 50
         };
+        this.priestCard = {
+            id: 3,
+            x: 290,
+            y: 15,
+            width: 60,
+            height: 70,
+            defenderCost: 100
+        };
         this.selectedDefender = 0;
         this.defenderCosts = {
             0: 0,
             [this['archerCard']['id']]: this.archerCard['defenderCost'],
-            [this['knightCard']['id']]: this.knightCard['defenderCost']
+            [this['knightCard']['id']]: this.knightCard['defenderCost'],
+            [this['priestCard']['id']]: this.priestCard['defenderCost']
         };
     }
 
@@ -95,6 +106,18 @@ export default class ControlsBar {
         context.font = '20px Arial';
         context.fillText(this.knightCard.defenderCost, this.knightCard.x + 15, this.knightCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.knightCard.x + 2, this.knightCard.y + 48, 200, 200);
+        context.restore();
+
+        // priest card
+        context.save();
+        context.globalAlpha = this.game.numberOfResources >= this.priestCard.defenderCost ? 1 : 0.6;
+        context.fillStyle = 'black';
+        context.fillRect(this.priestCard.x, this.priestCard.y, this.priestCard.width, this.priestCard.height);
+        context.drawImage(this.priestImage, 0, 0, 200, 200, this.priestCard.x - 75, this.priestCard.y - 75, 200, 200);
+        context.fillStyle = 'gold';
+        context.font = '20px Arial';
+        context.fillText(this.priestCard.defenderCost, this.priestCard.x + 15, this.priestCard.y + 65);
+        context.drawImage(this.resourceImage, 0, 0, 200, 200, this.priestCard.x + 2, this.priestCard.y + 48, 200, 200);
         context.restore();
     }
 }

@@ -73,7 +73,7 @@ export default class Enemy {
                     if (defender.health <= 0) {
                         defender.dying = true;
                         this.movement = this.speed;
-                        this.colliding = 0;
+                        this.colliding--;
                     }
                 }
             });
