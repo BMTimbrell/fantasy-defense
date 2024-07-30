@@ -7,14 +7,14 @@ export default class Projectile {
         this.width = 32;
         this.height = 32;
         this.power = 20;
-        this.speed = 5;
+        this.speed = 0.3;
         this.spriteSize = 32;
         this.image = new Image();
-        this.image.src = '../images/Arrow.png';
+        this.image.src = './images/Arrow.png';
     }
 
-    update(game) {
-        this.x += this.speed;
+    update(game, delta) {
+        this.x += this.speed * delta;
 
         //collision with enemies
         game.enemies.forEach(enemy => {
@@ -23,7 +23,7 @@ export default class Projectile {
                 game.projectiles = game.projectiles.filter(projectile => projectile !== this);     
                 if (enemy.health <= 0) {
                     const coinImage = new Image();
-                    coinImage.src = "../images/Coin.png"
+                    coinImage.src = "./images/Coin.png"
                     game.floatingMessages.push(new FloatingMessage('', enemy.x, enemy.y, 16, 'black', coinImage));
                     game.gold += enemy.goldDropped;
                     enemy.dying = true;
@@ -34,12 +34,6 @@ export default class Projectile {
     }
 
     render(context) {
-        // context.save();
-        // context.fillStyle = 'black';
-        // context.beginPath();
-        // context.arc(this.x, this.y, this.width, 0, Math.PI * 2);
-        // context.fill();
-        // context.restore();
         context.drawImage(
             this.image, 
             0, 
@@ -57,7 +51,7 @@ export default class Projectile {
 export class Fireball extends Projectile {
     constructor(x, y) {
         super(x, y);
-        this.image.src = '../images/Fireball2.png';
+        this.image.src = './images/Fireball2.png';
         this.power = 40;
         this.spriteSize = 22;
         this.width = 22;
@@ -68,7 +62,7 @@ export class Fireball extends Projectile {
 export class Voidball extends Fireball {
     constructor(x, y) {
         super(x, y);
-        this.image.src = '../images/Voidball.png';
+        this.image.src = './images/Voidball.png';
         this.power = 60;
     }
 }

@@ -34,7 +34,7 @@ export default class Enemy {
         this.damageTrigger = false;
         this.attackTimer = this.attackInterval;
         this.image = new Image();
-        this.image.src = '../images/Slime.png';
+        this.image.src = './images/Slime.png';
         this.colliding = 0;
     }
 
@@ -89,11 +89,6 @@ export default class Enemy {
     }
 
     render(context) {
-        // context.fillStyle = 'red';
-        // context.fillRect(this.x, this.y, this.width, this.height);
-        context.fillStyle = 'black';
-        context.font = '20px Arial';
-        context.fillText(Math.floor(this.health), this.x, this.y);
         context.drawImage(
             this.image, 
             this.frameX * this.spriteSize, 
@@ -174,7 +169,7 @@ export default class Enemy {
 export class Skeleton extends Enemy {
     constructor(verticalPosition, canvas, game, id) {
         super(verticalPosition, canvas, game, id);
-        this.image.src = '../images/Skeleton.png';
+        this.image.src = './images/Skeleton.png';
         this.speed = 0.02;
         this.walkingFrame = 7;
         this.attackingFrame = 7;
@@ -188,7 +183,7 @@ export class Skeleton extends Enemy {
 export class Orc extends Skeleton {
     constructor(verticalPosition, canvas, game, id) {
         super(verticalPosition, canvas, game, id);
-        this.image.src = '../images/Orc.png';
+        this.image.src = './images/Orc.png';
         this.speed = 0.01;
         this.maxHealth = 140;
         this.health = this.maxHealth;
@@ -199,7 +194,7 @@ export class Orc extends Skeleton {
 export class ArmouredOrc extends Enemy {
     constructor(verticalPosition, canvas, game, id) {
         super(verticalPosition, canvas, game, id);
-        this.image.src = '../images/ArmouredOrc.png';
+        this.image.src = './images/ArmouredOrc.png';
         this.maxHealth = 200;
         this.health = this.maxHealth;
         this.maxFrame = 8;
@@ -214,7 +209,7 @@ export class ArmouredOrc extends Enemy {
 export class Werewolf extends Enemy {
     constructor(verticalPosition, canvas, game, id) {
         super(verticalPosition, canvas, game, id);
-        this.image.src = '../images/Werewolf.png';
+        this.image.src = './images/Werewolf.png';
         this.maxFrame = 12;
         this.walkingFrame = 12;
         this.attackingFrame = 12;
@@ -228,7 +223,7 @@ export class Werewolf extends Enemy {
 export class Werebear extends  Werewolf {
     constructor(verticalPosition, canvas, game, id) {
         super(verticalPosition, canvas, game, id);
-        this.image.src = '../images/Werebear.png';
+        this.image.src = './images/Werebear.png';
         this.speed = 0.02;
         this.maxHealth = 140;
         this.health = this.maxHealth;
@@ -238,7 +233,7 @@ export class Werebear extends  Werewolf {
 export class OrcRider extends  Enemy {
     constructor(verticalPosition, canvas, game, id) {
         super(verticalPosition, canvas, game, id);
-        this.image.src = '../images/OrcRider.png';
+        this.image.src = './images/OrcRider.png';
         this.speed = 0.02;
         this.maxHealth = 200;
         this.health = this.maxHealth;

@@ -13,14 +13,14 @@ export default class ControlsBar {
         this.wizardImage = new Image();
         this.witchImage = new Image();
         this.trashcanImage = new Image();
-        this.coinImage.src = '../images/Coin.png';
-        this.resourceImage.src = '../images/Resource.png';
-        this.archerImage.src = '../images/Archer(no-shadows).png';
-        this.knightImage.src = '../images/Knight(no-shadows).png';
-        this.priestImage.src = '../images/Priest(no-shadows).png';
-        this.wizardImage.src = '../images/Wizard(no-shadows).png';
-        this.witchImage.src = '../images/Witch.png';
-        this.trashcanImage.src = '../images/trashcan.png';
+        this.coinImage.src = './images/Coin.png';
+        this.resourceImage.src = './images/Resource.png';
+        this.archerImage.src = './images/Archer(no-shadows).png';
+        this.knightImage.src = './images/Knight(no-shadows).png';
+        this.priestImage.src = './images/Priest(no-shadows).png';
+        this.wizardImage.src = './images/Wizard(no-shadows).png';
+        this.witchImage.src = './images/Witch.png';
+        this.trashcanImage.src = './images/trashcan.png';
 
         this.archerCard = {
             id: 1,
@@ -115,7 +115,7 @@ export default class ControlsBar {
             10, 
             20
         );
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '15px Pixel';
         context.fillText(this.game.numberOfResources, 50, 40);
 
@@ -131,17 +131,17 @@ export default class ControlsBar {
             16, 
             16
         );
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '15px Pixel';
         context.fillText(this.game.gold, 50, 77);
 
         // archer card
         context.save();
         context.globalAlpha = this.game.numberOfResources >= this.archerCard.defenderCost ? 1 : 0.6;
-        context.fillStyle = 'black';
+        context.fillStyle = '#404040';
         context.fillRect(this.archerCard.x, this.archerCard.y, this.archerCard.width, this.archerCard.height);
         context.drawImage(this.archerImage, 0, 0, 200, 200, this.archerCard.x - 75, this.archerCard.y - 75, 200, 200);
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '12px Pixel';
         context.fillText(this.archerCard.defenderCost, this.archerCard.x + 15, this.archerCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.archerCard.x + 2, this.archerCard.y + 48, 200, 200);
@@ -150,10 +150,10 @@ export default class ControlsBar {
         // knight card
         context.save();
         context.globalAlpha = this.game.numberOfResources >= this.knightCard.defenderCost ? 1 : 0.6;
-        context.fillStyle = 'black';
+        context.fillStyle = '#404040';
         context.fillRect(this.knightCard.x, this.knightCard.y, this.knightCard.width, this.knightCard.height);
         context.drawImage(this.knightImage, 0, 0, 200, 200, this.knightCard.x - 75, this.knightCard.y - 75, 200, 200);
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '12px Pixel';
         context.fillText(this.knightCard.defenderCost, this.knightCard.x + 15, this.knightCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.knightCard.x + 2, this.knightCard.y + 48, 200, 200);
@@ -162,10 +162,10 @@ export default class ControlsBar {
         // priest card
         context.save();
         context.globalAlpha = this.game.numberOfResources >= this.priestCard.defenderCost ? 1 : 0.6;
-        context.fillStyle = 'black';
+        context.fillStyle = '#404040';
         context.fillRect(this.priestCard.x, this.priestCard.y, this.priestCard.width, this.priestCard.height);
         context.drawImage(this.priestImage, 0, 0, 200, 200, this.priestCard.x - 75, this.priestCard.y - 75, 200, 200);
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '12px Pixel';
         context.fillText(this.priestCard.defenderCost, this.priestCard.x + 15, this.priestCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.priestCard.x + 2, this.priestCard.y + 48, 200, 200);
@@ -174,10 +174,10 @@ export default class ControlsBar {
         // wizard card
         context.save();
         context.globalAlpha = this.game.numberOfResources >= this.wizardCard.defenderCost ? 1 : 0.6;
-        context.fillStyle = 'black';
+        context.fillStyle = '#404040';
         context.fillRect(this.wizardCard.x, this.wizardCard.y, this.wizardCard.width, this.wizardCard.height);
         context.drawImage(this.wizardImage, 0, 0, 200, 200, this.wizardCard.x - 75, this.wizardCard.y - 75, 200, 200);
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '12px Pixel';
         context.fillText(this.wizardCard.defenderCost, this.wizardCard.x + 15, this.wizardCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.wizardCard.x + 2, this.wizardCard.y + 48, 200, 200);
@@ -186,10 +186,10 @@ export default class ControlsBar {
         // witch card
         context.save();
         context.globalAlpha = this.game.numberOfResources >= this.witchCard.defenderCost ? 1 : 0.6;
-        context.fillStyle = 'black';
+        context.fillStyle = '#404040';
         context.fillRect(this.witchCard.x, this.witchCard.y, this.witchCard.width, this.witchCard.height);
         context.drawImage(this.witchImage, 0, 5 * 64, 64, 64, this.witchCard.x, this.witchCard.y - 3, 54, 54);
-        context.fillStyle = 'gold';
+        context.fillStyle = 'white';
         context.font = '12px Pixel';
         context.fillText(this.witchCard.defenderCost, this.witchCard.x + 15, this.witchCard.y + 65);
         context.drawImage(this.resourceImage, 0, 0, 200, 200, this.witchCard.x + 2, this.witchCard.y + 48, 200, 200);
@@ -197,7 +197,7 @@ export default class ControlsBar {
 
         // delete card
         context.save();
-        context.fillStyle = 'black';
+        context.fillStyle = '#404040';
         context.fillRect(this.trashcanCard.x, this.trashcanCard.y, this.trashcanCard.width, this.trashcanCard.height);
         context.drawImage(this.trashcanImage, 0, 0, 64, 64, this.trashcanCard.x - 2, this.trashcanCard.y + 3, 64, 64);
         context.restore();

@@ -101,7 +101,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.archerCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.archerCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, '#ff3333', null, 0.03, 0.001));
                     return;
                 }
             } else if (
@@ -117,7 +117,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.knightCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.knightCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, '#ff3333', null, 0.03, 0.001));
                     return;
                 }
             } else if (
@@ -133,7 +133,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.priestCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.priestCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, '#ff3333', null, 0.03, 0.001));
                     return;
                 }
             } else if (
@@ -149,7 +149,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.wizardCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.wizardCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, '#ff3333', null, 0.03, 0.001));
                     return;
                 }
             } else if (
@@ -165,7 +165,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.witchCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.witchCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, '#ff3333', null, 0.03, 0.001));
                     return;
                 }
             } else if (
@@ -213,6 +213,8 @@ export default class Game {
                         if (this.controlsBar.selectedDefender === this.controlsBar.trashcanCard.id) {
                             this.defenders = this.defenders.filter(el => el !== this.defenders[i]);
                             this.controlsBar.selectedDefender = 0;
+                        } else if (this.controlsBar.selectedDefender) {
+                            this.floatingMessages.push(new FloatingMessage('tile occupied', this.mouse.x + 20, this.mouse.y, 15, '#ff3333', null, 0.03, 0.001));
                         }
                         return;  
                     }
@@ -351,6 +353,9 @@ export default class Game {
             // enemy id used for enemy positions
             const enemyID = Date.now().toString(36) + Math.random().toString(36).substring(2);
             this.enemies.push(
+                Math.random() < this.orcRiderChance ? new OrcRider(verticalPosition, this.canvas.width, this, enemyID) :
+                Math.random() < this.werewolfChance ? new Werewolf(verticalPosition, this.canvas.width, this, enemyID) :
+                Math.random() < this.werebearChance ? new Werebear(verticalPosition, this.canvas.width, this, enemyID) :
                 Math.random() < this.armouredOrcChance ? new ArmouredOrc(verticalPosition, this.canvas.width, this, enemyID) :
                 Math.random() < this.skeletonChance ? new Skeleton(verticalPosition, this.canvas.width, this, enemyID) :
                 Math.random() < this.orcChance ? new Orc(verticalPosition, this.canvas.width, this, enemyID) :
@@ -374,7 +379,7 @@ export default class Game {
             this.enemyTimer = this.enemiesInterval;
             this.resourceTimer = 5000;
 
-            if (this.wave === 1) this.gameWon = true;
+            if (this.wave === 8) this.gameWon = true;
             else this.upgradeMenu.isShowing = true;
 
         }
@@ -405,7 +410,7 @@ export default class Game {
 
         // update projectiles
         this.projectiles.forEach(projectile => {
-            projectile.update(this);
+            projectile.update(this, delta);
             if (projectile.x > this.canvas.width) {
                 this.projectiles = this.projectiles.filter(el => el !== projectile);
             }

@@ -13,7 +13,7 @@ export default class Resource {
             : this.amounts[this.amountsIndex];
 
         this.image = new Image();
-        this.image.src = '../images/Resource.png';
+        this.image.src = './images/Resource.png';
     }
 
     render(context) {
@@ -29,10 +29,5 @@ export default class Resource {
             this.width, 
             this.height
         );
-        // context.fillStyle = 'yellow';
-        // context.fillRect(this.x, this.y, this.width, this.height);
-        // context.fillStyle = 'black';
-        // context.font = '20px Arial';
-        // context.fillText(this.amount, this.x + 15, this.y + 25);
     }
 }

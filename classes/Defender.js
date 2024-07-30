@@ -38,15 +38,10 @@ export default class Defender {
         this.attackTrigger = false;
         this.spriteSize = 200;
         this.image = new Image();
-        this.image.src = '../images/Archer.png';
+        this.image.src = './images/Archer.png';
     }
 
     render(context) {
-        // context.fillStyle = 'blue';
-        // context.fillRect(this.x, this.y, this.width, this.height);
-        // context.fillStyle = 'gold';
-        // context.font = '20px Arial';
-        // context.fillText(Math.floor(this.health), this.x, this.y);
 
         if (!(this instanceof Witch)) {
             context.drawImage(
@@ -141,7 +136,7 @@ export default class Defender {
                                 enemy.health -= 20;    
                                 if (enemy.health <= 0) {
                                     const coinImage = new Image();
-                                    coinImage.src = "../images/Coin.png"
+                                    coinImage.src = "./images/Coin.png"
                                     this.game.floatingMessages.push(new FloatingMessage('', enemy.x, enemy.y, 16, 'black', coinImage));
                                     this.game.gold += enemy.maxHealth / 2;
                                     numberOfEnemies--;
@@ -243,7 +238,7 @@ export default class Defender {
 export class Knight extends Defender {
     constructor(cellX, cellY, game) {
         super(cellX, cellY, game);
-        this.image.src = '../images/Knight.png';
+        this.image.src = './images/Knight.png';
         this.maxAttackingFrame = 6;
         this.attackFrame = 3;
         this.dyingFrameY = 7;
@@ -256,7 +251,7 @@ export class Knight extends Defender {
 export class Priest extends Defender {
     constructor(cellX, cellY, game) {
         super(cellX, cellY, game);
-        this.image.src = '../images/Priest.png';
+        this.image.src = './images/Priest.png';
         this.maxAttackingFrame = 5;
         this.attackFrame = 3;
         this.dyingFrameY = 9;
@@ -266,7 +261,7 @@ export class Priest extends Defender {
 export class Wizard extends Defender {
     constructor(cellX, cellY, game) {
         super(cellX, cellY, game);
-        this.image.src = '../images/Wizard.png';
+        this.image.src = './images/Wizard.png';
         this.maxAttackingFrame = 5;
         this.attackFrame = 4;
         this.dyingFrameY = 9;
@@ -276,7 +271,7 @@ export class Wizard extends Defender {
 export class Witch extends Defender {
     constructor(cellX, cellY, game, health = 100) {
         super(cellX, cellY, game);
-        this.image.src = '../images/Witch.png';
+        this.image.src = './images/Witch.png';
         this.maxAttackingFrame = 7;
         this.attackFrame = 4;
         this.dyingFrameY = 4;
