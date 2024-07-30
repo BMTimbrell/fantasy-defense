@@ -1,14 +1,22 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
 import Defender, { Knight, Priest, Wizard, Witch } from './Defender.js';
-import Enemy from './Enemy.js';
+import Enemy, { Skeleton, Orc, ArmouredOrc } from './Enemy.js';
 import Resource from './Resource.js';
 import FloatingMessage from './FloatingMessage.js';
+import UpgradeMenu from './UpgradeMenu.js'
 
 export default class Game {
     constructor(canvas) {
         this.canvas = canvas;
         this.gameGrid = [];
+        this.unlocks = {
+            knight: false,
+            priest: false,
+            wizard: false,
+            witch: false
+        };
+
         this.controlsBar = new ControlsBar(canvas, this);
         this.mouse = {
             x: 10,
@@ -20,7 +28,7 @@ export default class Game {
         this.canvasPosition = canvas.getBoundingClientRect();
         this.gameOver = false;
         this.defenders = [];
-        this.numberOfResources = 800;
+        this.numberOfResources = 300;
         this.gold = 0;
         this.luck = 0;
         this.resources = [];
@@ -30,11 +38,27 @@ export default class Game {
 
         this.resourceTimer = 5000;
 
+        this.wave = 1;
+        this.waveTime = 0;
+        this.hoardTrigger = true;
+        this.hoardSize = 8;
+        this.nextWaveTrigger = true;
+
+        this.upgradeMenu = new UpgradeMenu(this);
+
         this.enemies = [];
         this.enemiesInterval = 8000;
         this.enemyTimer = this.enemiesInterval;
-        this.maxEnemies = 10;
+        this.maxEnemies = 20;
+        this.enemiesSpawned = 0;
         this.enemyPositions = [];
+
+        this.skeletonChance = 0;
+        this.orcChance = 0;
+        this.armouredOrcChance = 0;
+        this.lateSkeletonChance = 0;
+        this.lateOrcChance = 0;
+        this.lateArmouredOrcChance = 0;
 
         // update mouse position
         this.canvas.addEventListener('mousemove', e => {
@@ -70,7 +94,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.archerCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.archerCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
                     return;
                 }
             } else if (
@@ -86,7 +110,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.knightCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.knightCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
                     return;
                 }
             } else if (
@@ -102,7 +126,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.priestCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.priestCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
                     return;
                 }
             } else if (
@@ -118,7 +142,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.wizardCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.wizardCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
                     return;
                 }
             } else if (
@@ -134,7 +158,7 @@ export default class Game {
                 if (this.numberOfResources >= this.controlsBar.witchCard.defenderCost) this.controlsBar.selectedDefender = this.controlsBar.witchCard.id;
                 // not enough to buy
                 else {
-                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 20, 'red'));
+                    this.floatingMessages.push(new FloatingMessage('need more resources', this.mouse.x, this.mouse.y, 15, 'red'));
                     return;
                 }
             } else if (
@@ -221,7 +245,7 @@ export default class Game {
         if (this.gameOver) {
             context.fillStyle = 'black';
             context.font = '60px Arial';
-            context.fillText('GAME OVER', 135, 330);
+            context.fillText('GAME OVER', 270, 330);
         }
 
         this.gameGrid.forEach(cell => cell.render(context));
@@ -232,6 +256,7 @@ export default class Game {
         this.resources.forEach(resource => resource.render(context));
         this.floatingMessages.forEach(message => message.render(context));
 
+        // show selected defender at cursor
         if (this.controlsBar.selectedDefender === this.controlsBar.archerCard.id) {
             context.drawImage(this.controlsBar.archerImage, 0, 0, 200, 200, this.mouse.x - 100, this.mouse.y - 100, 200, 200);
         } else if (this.controlsBar.selectedDefender === this.controlsBar.knightCard.id) {
@@ -245,15 +270,21 @@ export default class Game {
         } else if (this.controlsBar.selectedDefender === this.controlsBar.trashcanCard.id) {
             context.drawImage(this.controlsBar.trashcanImage, 0, 0, 64, 64, this.mouse.x - 32, this.mouse.y - 32, 64, 64);
         }
+
+        // upgrade menu
+        if (this.upgradeMenu.isShowing) this.upgradeMenu.draw(context);
     }
 
     update(delta) {
         if (this.gameOver) return;
-
         this.createGrid();
 
-        this.enemyTimer += delta;
-        this.resourceTimer += delta;
+        // only tick timers while wave is still going
+        if (this.enemiesSpawned < this.maxEnemies || this.enemies.length > 0) {
+            this.enemyTimer += delta;
+            this.resourceTimer += delta;
+            this.waveTime += delta;
+        }
 
         // update enemies
         this.enemies.forEach(enemy => {
@@ -261,18 +292,71 @@ export default class Game {
             if (enemy.x < 0) this.gameOver = true;
         });
 
+        // make enemies harder later in wave
+        if (this.waveTime > 30000) {
+            this.enemiesInterval = 5000;
+            this.skeletonChance = this.lateSkeletonChance;
+            this.orcChance = this.lateOrcChance;
+            this.armouredOrcChance = this.lateArmouredOrcChance;
+        }
+
         // enemy spawn interval
-        if (this.enemyTimer >= this.enemiesInterval) {
+        if (this.maxEnemies - this.enemiesSpawned > this.hoardSize) {
+            if (this.enemyTimer >= this.enemiesInterval) {
+                this.enemyTimer = 0;
+                // vertical position on grid
+                const verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
+                // enemy id used for enemy positions
+                const enemyID = Date.now().toString(36) + Math.random().toString(36).substring(2);
+                this.enemies.push(
+                    Math.random() < this.armouredOrcChance ? new ArmouredOrc(verticalPosition, this.canvas.width, this, enemyID) :
+                    Math.random() < this.skeletonChance ? new Skeleton(verticalPosition, this.canvas.width, this, enemyID) :
+                    Math.random() < this.orcChance ? new Orc(verticalPosition, this.canvas.width, this, enemyID) :
+                    new Enemy(verticalPosition, this.canvas.width, this, enemyID)
+                );
+                this.enemyPositions.push({
+                    id: enemyID,
+                    x: this.canvas.width,
+                    y: verticalPosition
+                });
+
+                this.enemiesSpawned++;
+                
+            }
+        } else if (this.enemyTimer >= 1000 && this.maxEnemies - this.enemiesSpawned > 0) {
+            if (this.hoardTrigger) {
+                this.hoardTrigger = false;
+                this.floatingMessages.push(new FloatingMessage('Hoard Incoming!', 320, 300, 20, 'white', null, 0.00003, 0));
+            }
             this.enemyTimer = 0;
             // vertical position on grid
             const verticalPosition = Math.floor(Math.random() * 5 + 1) * Cell.cellSize;
+            // enemy id used for enemy positions
             const enemyID = Date.now().toString(36) + Math.random().toString(36).substring(2);
-            this.enemies.push(new Enemy(verticalPosition, this.canvas.width, this, enemyID));
+            this.enemies.push(
+                Math.random() < this.armouredOrcChance ? new ArmouredOrc(verticalPosition, this.canvas.width, this, enemyID) :
+                Math.random() < this.skeletonChance ? new Skeleton(verticalPosition, this.canvas.width, this, enemyID) :
+                Math.random() < this.orcChance ? new Orc(verticalPosition, this.canvas.width, this, enemyID) :
+                new Enemy(verticalPosition, this.canvas.width, this, enemyID)
+            );
             this.enemyPositions.push({
                 id: enemyID,
                 x: this.canvas.width,
                 y: verticalPosition
             });
+
+            this.enemiesSpawned++;
+        } else if (this.enemiesSpawned >= this.maxEnemies && this.enemies.length === 0) {
+            // wave finished
+            this.nextWaveTrigger = false;
+            this.resources = [];
+            this.defenders = [];
+            this.numberOfResources = 0;
+            this.controlsBar.selectedDefender = 0;
+            this.waveTime = 0;
+            this.enemyTimer = this.enemiesInterval;
+            this.resourceTimer = 5000;
+            this.upgradeMenu.isShowing = true;
         }
 
         // spawn resources
@@ -285,7 +369,7 @@ export default class Game {
         this.resources.forEach(resource => {
             if (this.mouse.x && this.mouse.y && this.checkCollision(resource, this.mouse)) {
                 this.numberOfResources += resource.amount;
-                this.floatingMessages.push(new FloatingMessage('+' + resource.amount, resource.x, resource.y, 20, 'black'));
+                this.floatingMessages.push(new FloatingMessage('+' + resource.amount, resource.x, resource.y, 15, 'white'));
                 this.resources = this.resources.filter(el => el !== resource);
             }
         });
@@ -297,7 +381,7 @@ export default class Game {
             defender.update(delta);
         });
 
-        this.luck = numberOfPriests / 2 > 3 ? 3 : numberOfPriests / 2;
+        this.luck = numberOfPriests / 1.25;
 
         // update projectiles
         this.projectiles.forEach(projectile => {

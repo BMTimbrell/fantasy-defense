@@ -1,3 +1,9 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     background: black;
 }
@@ -7,7 +13,14 @@ body {
     top: 50%;
     left: 50%;
     translate: -50% -50%;
-    width: 900px;
-    height: 600px;
+    max-width: 100%;
     background-color: white;
+    background: url('./images/grass4.png');
+}
+
+@font-face {
+    font-family: 'Pixel';
+    src: url('PressStart2P-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
 }

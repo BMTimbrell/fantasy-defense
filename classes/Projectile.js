@@ -25,7 +25,7 @@ export default class Projectile {
                     const coinImage = new Image();
                     coinImage.src = "../images/Coin.png"
                     game.floatingMessages.push(new FloatingMessage('', enemy.x, enemy.y, 16, 'black', coinImage));
-                    game.gold += enemy.maxHealth / 2;
+                    game.gold += enemy.goldDropped;
                     enemy.dying = true;
                     game.enemyPositions = game.enemyPositions.filter(el => el.id !== enemy.id);
                 }   

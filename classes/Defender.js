@@ -4,12 +4,12 @@ import FloatingMessage from './FloatingMessage.js';
 
 export default class Defender {
     constructor(cellX, cellY, game) {
-        this.width = 22;
+        this.width = 32;
         this.height = 40;
         this.cellX = cellX;
         this.cellY = cellY;
         // hitbox position
-        this.x = this.cellX + 50;
+        this.x = this.cellX + 40;
         this.y = this.cellY + (Cell.cellSize - this.height) / 2;
         this.attacking = false;
         this.maxHealth = 100;
@@ -77,9 +77,11 @@ export default class Defender {
         
         if (this.game.checkCollision(this.game.mouse, this)) {
             context.fillStyle = 'gray';
-            context.fillRect(this.x - 20, this.y - 15, 40, 5);
-            context.fillStyle = 'green';
-            context.fillRect(this.x - 20, this.y - 15, this.health / this.maxHealth * 40, 5);
+            context.fillRect(this.x - 10, this.y - 15, 40, 5);
+            context.fillStyle = 'lime';
+            context.fillRect(this.x - 10, this.y - 15, this.health / this.maxHealth * 40, 5);
+            context.fillStyle = 'black';
+            context.strokeRect(this.x - 9, this.y - 14, 41, 6);
         }
     }
 
@@ -111,7 +113,7 @@ export default class Defender {
             
 
         // check for enemy to attack
-        } else if (!(this instanceof Knight) && this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x) && !this.dying) {
+        } else if (!(this instanceof Knight) && this.game.enemyPositions.find(pos => pos.y === this.cellY && pos.x > this.x && pos.x < this.game.canvas.width - 20) && !this.dying) {
             this.attacking = true;
         } else if (this instanceof Knight && !this.dying) {
             this.game.enemies.forEach(enemy => {

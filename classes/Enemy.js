@@ -15,12 +15,14 @@ export default class Enemy {
         this.movement = this.speed;
         this.health = 100;
         this.maxHealth = this.health;
+        this.goldDropped = 50;
         this.dying = false;
         this.dead = false;
         this.game = game;
         // spritesheet is flipped
         this.walkingFrame = 5;
         this.attackingFrame = 5;
+        this.attackFrame = 2;
         this.dyingFrame = 5;
         this.frameX = 5;
         this.frameY = 1;
@@ -112,8 +114,8 @@ export default class Enemy {
             switch (animation) {
                 case 'walking':
                     // reset attacking animation
-                    this.attackingFrame = 5;
-
+                    this.attackingFrame = this.maxFrame;
+                    this.minFrame = this instanceof ArmouredOrc ? 1 : 0;
                     this.frameY = 1;
 
                     // spritesheet is flipped
@@ -126,8 +128,8 @@ export default class Enemy {
                     break;
                 case 'attacking':
                     // reset walking animation
-                    this.walkingFrame = 5;
-
+                    this.walkingFrame = this.maxFrame;
+                    this instanceof Skeleton || this instanceof ArmouredOrc ? this.minFrame = 2 : 0;
                     this.frameY = 2;
 
                     // spritesheet is flipped
@@ -139,11 +141,11 @@ export default class Enemy {
                     this.frameX = this.attackingFrame;
 
                     // damage defender on this frame
-                    if (this.attackingFrame === 2) this.damageTrigger = true;
+                    if (this.attackingFrame === this.attackFrame) this.damageTrigger = true;
                     break;
                 case 'dying':
-                    this.frameY = 4;
-                    this.minFrame = 2;
+                    this.frameY = this instanceof Orc ? 5 : this instanceof Skeleton ? 6: this instanceof ArmouredOrc ? 7 : 4;
+                    this.minFrame = this instanceof Skeleton ? 4 : this instanceof ArmouredOrc ? 5 : 2;
 
                     if (this.dyingFrame > this.minFrame) {
                         this.dyingFrame--;
@@ -160,8 +162,42 @@ export default class Enemy {
     }
 }
 
-export class Slime extends Enemy {
-    constructor(verticalPosition, canvas, game) {
-        super(verticalPosition, canvas, game);
+export class Skeleton extends Enemy {
+    constructor(verticalPosition, canvas, game, id) {
+        super(verticalPosition, canvas, game, id);
+        this.image.src = '../images/Skeleton.png';
+        this.speed = 0.02;
+        this.walkingFrame = 7;
+        this.attackingFrame = 7;
+        this.dyingFrame = 7;
+        this.maxFrame = 7;
+        this.attackFrame = 4;
+        this.goldDropped = 60;
+    }
+}
+
+export class Orc extends Skeleton {
+    constructor(verticalPosition, canvas, game, id) {
+        super(verticalPosition, canvas, game, id);
+        this.image.src = '../images/Orc.png';
+        this.speed = 0.01;
+        this.maxHealth = 140;
+        this.health = this.maxHealth;
+        this.goldDropped = 55;
+    }
+}
+
+export class ArmouredOrc extends Enemy {
+    constructor(verticalPosition, canvas, game, id) {
+        super(verticalPosition, canvas, game, id);
+        this.image.src = '../images/ArmouredOrc.png';
+        this.maxHealth = 200;
+        this.health = this.maxHealth;
+        this.maxFrame = 8;
+        this.walkingFrame = 8;
+        this.attackingFrame = 8;
+        this.dyingFrame = 8;
+        this.attackFrame = 3;
+        this.goldDropped = 60;
     }
 }
