@@ -115,7 +115,7 @@ export default class Enemy {
                 case 'walking':
                     // reset attacking animation
                     this.attackingFrame = this.maxFrame;
-                    this.minFrame = this instanceof ArmouredOrc ? 1 : 0;
+                    this.minFrame = this instanceof OrcRider ? 3 : this instanceof ArmouredOrc ? 1 : this instanceof Werewolf ? 7 : 0;
                     this.frameY = 1;
 
                     // spritesheet is flipped
@@ -129,8 +129,10 @@ export default class Enemy {
                 case 'attacking':
                     // reset walking animation
                     this.walkingFrame = this.maxFrame;
-                    this instanceof Skeleton || this instanceof ArmouredOrc ? this.minFrame = 2 : 0;
-                    this.frameY = 2;
+                    this.minFrame = this instanceof Skeleton || this instanceof ArmouredOrc || this instanceof OrcRider ? 2 : 
+                        this instanceof Werewolf ? 4 : 0;
+
+                    this.frameY = this instanceof OrcRider ? 3 : 2;
 
                     // spritesheet is flipped
                     if (this.attackingFrame > this.minFrame) {
@@ -144,8 +146,15 @@ export default class Enemy {
                     if (this.attackingFrame === this.attackFrame) this.damageTrigger = true;
                     break;
                 case 'dying':
-                    this.frameY = this instanceof Orc ? 5 : this instanceof Skeleton ? 6: this instanceof ArmouredOrc ? 7 : 4;
-                    this.minFrame = this instanceof Skeleton ? 4 : this instanceof ArmouredOrc ? 5 : 2;
+                    this.frameY = this instanceof Werebear ? 6 :
+                        this instanceof Orc || this instanceof Werewolf ? 5 :
+                        this instanceof Skeleton ? 6 : 
+                        this instanceof ArmouredOrc || this instanceof OrcRider ? 7 : 4;
+
+                    this.minFrame = this instanceof OrcRider ? 7 : 
+                        this instanceof Skeleton ? 4 : 
+                        this instanceof ArmouredOrc ? 5 : 
+                        this instanceof Werewolf ? 9 : 2;
 
                     if (this.dyingFrame > this.minFrame) {
                         this.dyingFrame--;
@@ -199,5 +208,45 @@ export class ArmouredOrc extends Enemy {
         this.dyingFrame = 8;
         this.attackFrame = 3;
         this.goldDropped = 60;
+    }
+}
+
+export class Werewolf extends Enemy {
+    constructor(verticalPosition, canvas, game, id) {
+        super(verticalPosition, canvas, game, id);
+        this.image.src = '../images/Werewolf.png';
+        this.maxFrame = 12;
+        this.walkingFrame = 12;
+        this.attackingFrame = 12;
+        this.dyingFrame = 12;
+        this.attackFrame = 6;
+        this.goldDropped = 65;
+        this.speed = 0.03
+    }
+}
+
+export class Werebear extends  Werewolf {
+    constructor(verticalPosition, canvas, game, id) {
+        super(verticalPosition, canvas, game, id);
+        this.image.src = '../images/Werebear.png';
+        this.speed = 0.02;
+        this.maxHealth = 140;
+        this.health = this.maxHealth;
+    }
+}
+
+export class OrcRider extends  Enemy {
+    constructor(verticalPosition, canvas, game, id) {
+        super(verticalPosition, canvas, game, id);
+        this.image.src = '../images/OrcRider.png';
+        this.speed = 0.02;
+        this.maxHealth = 200;
+        this.health = this.maxHealth;
+        this.goldDropped = 70;
+        this.maxFrame = 10;
+        this.walkingFrame = 10;
+        this.attackingFrame = 10;
+        this.dyingFrame = 10;
+        this.attackFrame = 4;
     }
 }

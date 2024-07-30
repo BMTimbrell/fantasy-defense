@@ -106,11 +106,14 @@ export default class UpgradeMenu {
                         this.isShowing = false;
                         this.game.nextWaveTrigger = true;
                         this.game.enemiesSpawned = 0;
-                        this.game.enemiesInterval = 8000;
+                        this.game.enemiesInterval = 10000;
                         this.game.enemyTimer = this.game.enemiesInterval;
                         this.game.orcChance = 0;
                         this.game.skeletonChance = 0;
                         this.game.armouredOrcChance = 0;
+                        this.game.werebearChance = 0;
+                        this.game.werewolfChance = 0;
+                        this.game.orcRiderChance = 0;
                         this.game.numberOfResources = 300;
                         this.game.maxEnemies += 5;
                         this.game.hoardSize += 2;
@@ -125,9 +128,23 @@ export default class UpgradeMenu {
                                 this.game.lateSkeletonChance = 0.2;
                                 break;
                             case 4:
-                                this.game.lateOrcChance = 0.5;
                                 this.game.lateSkeletonChance = 0.4;
                                 this.game.lateArmouredOrcChance = 0.2;
+                                break;
+                            case 5:
+                                this.game.lateArmouredOrcChance = 0.4;
+                                this.game.lateWerebearChance = 0.2;
+                                break;
+                            case 6:
+                                this.game.lateWerebearChance = 0.4;
+                                this.game.lateWerewolfChance = 0.2;
+                                break;
+                            case 7:
+                                this.game.lateWerewolfChance = 0.4;
+                                this.game.lateOrcRiderChance = 0.2;
+                                break;
+                            case 8:
+                                this.game.lateOrcRiderChance = 0.4;
                                 break;
                         }
                     }

@@ -1,7 +1,7 @@
 import Cell from './Cell.js';
 import ControlsBar from './ControlsBar.js';
 import Defender, { Knight, Priest, Wizard, Witch } from './Defender.js';
-import Enemy, { Skeleton, Orc, ArmouredOrc } from './Enemy.js';
+import Enemy, { Skeleton, Orc, ArmouredOrc, Werewolf, Werebear, OrcRider } from './Enemy.js';
 import Resource from './Resource.js';
 import FloatingMessage from './FloatingMessage.js';
 import UpgradeMenu from './UpgradeMenu.js'
@@ -27,6 +27,7 @@ export default class Game {
         };
         this.canvasPosition = canvas.getBoundingClientRect();
         this.gameOver = false;
+        this.gameWon = false;
         this.defenders = [];
         this.numberOfResources = 300;
         this.gold = 0;
@@ -47,7 +48,7 @@ export default class Game {
         this.upgradeMenu = new UpgradeMenu(this);
 
         this.enemies = [];
-        this.enemiesInterval = 8000;
+        this.enemiesInterval = 10000;
         this.enemyTimer = this.enemiesInterval;
         this.maxEnemies = 20;
         this.enemiesSpawned = 0;
@@ -56,9 +57,15 @@ export default class Game {
         this.skeletonChance = 0;
         this.orcChance = 0;
         this.armouredOrcChance = 0;
+        this.werebearChance = 0;
+        this.werewolfChance = 0;
+        this.orcRiderChance = 0;
         this.lateSkeletonChance = 0;
         this.lateOrcChance = 0;
         this.lateArmouredOrcChance = 0;
+        this.lateWerebearChance = 0;
+        this.lateWerewolfChance = 0;
+        this.lateOrcRiderChance = 0;
 
         // update mouse position
         this.canvas.addEventListener('mousemove', e => {
@@ -243,9 +250,13 @@ export default class Game {
 
     render(context) {
         if (this.gameOver) {
-            context.fillStyle = 'black';
-            context.font = '60px Arial';
-            context.fillText('GAME OVER', 270, 330);
+            context.fillStyle = 'white';
+            context.font = '40px Pixel';
+            context.fillText('GAME OVER', 280, 330);
+        } else if (this.gameWon) {
+            context.fillStyle = 'white';
+            context.font = '40px Pixel';
+            context.fillText('YOU WIN!', 300, 330);
         }
 
         this.gameGrid.forEach(cell => cell.render(context));
@@ -294,10 +305,13 @@ export default class Game {
 
         // make enemies harder later in wave
         if (this.waveTime > 30000) {
-            this.enemiesInterval = 5000;
+            this.enemiesInterval = 6000;
             this.skeletonChance = this.lateSkeletonChance;
             this.orcChance = this.lateOrcChance;
             this.armouredOrcChance = this.lateArmouredOrcChance;
+            this.werebearChance = this.lateWerebearChance;
+            this.werewolfChance = this.lateWerewolfChance;
+            this.orcRiderChance = this.lateOrcRiderChance;
         }
 
         // enemy spawn interval
@@ -309,6 +323,9 @@ export default class Game {
                 // enemy id used for enemy positions
                 const enemyID = Date.now().toString(36) + Math.random().toString(36).substring(2);
                 this.enemies.push(
+                    Math.random() < this.orcRiderChance ? new OrcRider(verticalPosition, this.canvas.width, this, enemyID) :
+                    Math.random() < this.werewolfChance ? new Werewolf(verticalPosition, this.canvas.width, this, enemyID) :
+                    Math.random() < this.werebearChance ? new Werebear(verticalPosition, this.canvas.width, this, enemyID) :
                     Math.random() < this.armouredOrcChance ? new ArmouredOrc(verticalPosition, this.canvas.width, this, enemyID) :
                     Math.random() < this.skeletonChance ? new Skeleton(verticalPosition, this.canvas.width, this, enemyID) :
                     Math.random() < this.orcChance ? new Orc(verticalPosition, this.canvas.width, this, enemyID) :
@@ -356,7 +373,10 @@ export default class Game {
             this.waveTime = 0;
             this.enemyTimer = this.enemiesInterval;
             this.resourceTimer = 5000;
-            this.upgradeMenu.isShowing = true;
+
+            if (this.wave === 1) this.gameWon = true;
+            else this.upgradeMenu.isShowing = true;
+
         }
 
         // spawn resources
