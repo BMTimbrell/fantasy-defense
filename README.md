@@ -7,4 +7,4 @@
 
 A tower defense game where you must stop various monsters reaching the other end of the map. 
 After completing each wave, you have the option to purchase more defenders. 
-Sprites were created by [Zerie](https://zerie.itch.io/tiny-rpg-character-asset-pack) and [Ethlen.][https://zerie.itch.io/tiny-rpg-character-asset-pack](https://elthen.itch.io/2d-pixel-art-witch-sprites)
+Sprites were created by [Zerie](https://zerie.itch.io/tiny-rpg-character-asset-pack) and [Ethlen.](https://elthen.itch.io/2d-pixel-art-witch-sprites)
