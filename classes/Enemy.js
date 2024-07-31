@@ -24,13 +24,14 @@ export default class Enemy {
         this.attackingFrame = 5;
         this.attackFrame = 2;
         this.dyingFrame = 5;
+        this.idleFrame = 5;
         this.frameX = 5;
         this.frameY = 1;
         this.minFrame = 0;
         this.maxFrame = 5;
         this.animationTimer = 0;
-        this.animationInterval = 200;
-        this.attackInterval = 100;
+        this.animationInterval = 150;
+        this.attackInterval = 500;
         this.damageTrigger = false;
         this.attackTimer = this.attackInterval;
         this.image = new Image();
@@ -60,10 +61,11 @@ export default class Enemy {
                     // attack interval
                     if (this.attackTimer < this.attackInterval) this.attackTimer += delta;
                     if (this.attackTimer >= this.attackInterval) {
+                        
                         // change to attacking animation
                         this.animate('attacking');
                         if (this.damageTrigger) {
-                            defender.health -= 20;
+                            defender.health -= 25;
                             this.damageTrigger = false;
                         }
                         
@@ -107,6 +109,21 @@ export default class Enemy {
         if (this.animationTimer >= this.animationInterval) {
             this.animationTimer = 0;
             switch (animation) {
+                case 'idle':
+                    // reset attacking animation
+                    this.attackingFrame = this.maxFrame;
+                    this.minFrame = this instanceof OrcRider ? 5 : this instanceof ArmouredOrc ? 3: this instanceof Werewolf ? 7 : this instanceof Skeleton ? 2 : 0;
+                    this.frameY = 0;
+
+                    // spritesheet is flipped
+                    if (this.idleFrame > this.minFrame) {
+                        this.idleFrame--;
+                    }
+                    else this.idleFrame = this.maxFrame;
+            
+                    this.frameX = this.idleFrame;
+                    break;
+
                 case 'walking':
                     // reset attacking animation
                     this.attackingFrame = this.maxFrame;
@@ -133,7 +150,10 @@ export default class Enemy {
                     if (this.attackingFrame > this.minFrame) {
                         this.attackingFrame--;
                     }
-                    else this.attackingFrame = this.maxFrame;
+                    else {
+                        this.attackingFrame = this.maxFrame;
+                        this.attackTimer = 0;
+                    }
             
                     this.frameX = this.attackingFrame;
 
